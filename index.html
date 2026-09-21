@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>زُهي | ZUHI</title><meta name="description" content="زُهي - منصة سعودية عصرية للمنتجات والخدمات من مصر والإمارات والسعودية">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css"><link rel="manifest" href="manifest.webmanifest"><link id="appIcon" rel="icon" href="assets/brand-board.png"><meta name="theme-color" content="#0f5132">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script>
+</head><body>
+<canvas id="waveCanvas" class="wave-canvas" aria-hidden="true"></canvas>
+<header class="site-header"><div class="container nav-wrap"><button class="mobile-menu-btn" id="mobileMenuBtn">☰</button><a class="brand" href="#home"><img src="assets/brand-board.png" alt="زُهي" class="logo-img"><span><b>زُهي</b><small>ZUHI</small></span></a><nav id="mainNav"><a href="#home">الرئيسية</a><a href="#categories">الأقسام</a><a href="#products">المنتجات</a><a href="#services">الخدمات</a><a href="#reviews">آراء العملاء</a><a href="#about">من نحن</a><a href="#contact">تواصل معنا</a></nav><div class="nav-actions"><button class="icon-btn" id="searchBtn" aria-label="بحث">⌕</button><button class="icon-btn share-btn" id="shareBtn" aria-label="مشاركة الموقع">↗</button></div></div><div class="container search-bar hidden" id="searchBar"><input id="searchInput" placeholder="ابحث عن منتج أو خدمة..."></div></header>
+<button id="installApp" class="install-app" type="button" aria-label="تثبيت تطبيق زُهي">＋ تثبيت التطبيق</button><main>
+<section id="home" class="hero"><div class="container hero-content reveal"><span id="heroEyebrow" class="eyebrow">تجربة تسوق سعودية بروح عصرية</span><h1 id="heroTitle">أكثر من مجرد متجر... <span id="heroAccent">هوية</span></h1><p id="heroText">من قلب المملكة، يجمع زُهي المنتجات والخدمات التي تحتاجها في تجربة بسيطة وأنيقة وسلسة، من مصر والإمارات والسعودية.</p><div class="hero-actions"><a id="heroPrimaryLabel" class="btn primary" href="#products">تسوّق الآن</a><a id="heroSecondaryLabel" class="btn ghost" href="#categories">اكتشف الأقسام</a></div></div></section>
+<section class="trust-strip"><div class="container trust-grid"><div><b>اختيارات بعناية</b><span>جودة موثوقة</span></div><div><b>تجربة سهلة</b><span>من البحث للشراء</span></div><div><b>شراء مباشر</b><span>نوصلك للمتجر الأصلي</span></div><div><b>3 أسواق عربية</b><span>مصر · الإمارات · السعودية</span></div></div></section>
+
+<section id="categories" class="section"><div class="container"><div class="section-head"><div><span class="eyebrow">اكتشف عالم زُهي</span><h2>الأقسام</h2></div></div><div id="categoryGrid" class="category-grid"></div></div></section>
+
+<section id="products" class="section soft"><div class="container">
+  <div class="section-head"><div><span class="eyebrow">اختر سوقك</span><h2>المنتجات</h2></div></div>
+  <div class="country-tabs" id="countryTabs" role="tablist" aria-label="اختر الدولة">
+    <button class="country-tab active" data-country="all" role="tab" aria-selected="true">🌍 الكل</button>
+    <button class="country-tab" data-country="مصر" role="tab" aria-selected="false">🇪🇬 مصر</button>
+    <button class="country-tab" data-country="الإمارات" role="tab" aria-selected="false">🇦🇪 الإمارات</button>
+    <button class="country-tab" data-country="السعودية" role="tab" aria-selected="false">🇸🇦 السعودية</button>
+  </div>
+  <div class="section-head products-toolbar"><select id="categoryFilter"><option value="all">كل الأقسام</option></select></div>
+  <div id="productGrid" class="product-grid"></div><div id="emptyProducts" class="empty hidden">لا توجد منتجات مطابقة.</div>
+</div></section>
+
+<section id="services" class="section"><div class="container"><div class="section-head"><div><span class="eyebrow">خدماتنا</span><h2>خدمات مصممة لتسهّل يومك</h2></div></div><div id="serviceGrid" class="service-grid"></div></div></section>
+
+<section id="reviews" class="section soft reviews-section"><div class="container">
+  <button class="section-toggle" id="reviewsToggle" aria-expanded="false" aria-controls="reviewsPanel">
+    <span><span class="eyebrow">ثقة عملائنا</span><strong>آراء العملاء</strong></span>
+    <span class="section-arrow">‹</span>
+  </button>
+  <div class="section-panel" id="reviewsPanel">
+    <p class="reviews-note muted">تجربة حقيقية من عملاء زُهي عبر مصر والإمارات والسعودية.</p>
+    <div id="reviewsGrid" class="reviews-grid"></div>
+    <p id="emptyReviews" class="empty hidden">لسه مفيش آراء منشورة — تقدر تضيفها من لوحة الإدارة.</p>
+  </div>
+</div></section>
+
+<section id="about" class="section about-section"><div class="container about-grid"><div class="about-copy reveal"><span class="eyebrow">من نحن</span><h2 id="aboutTitle">زُهي... جودة، بساطة وهوية</h2><p id="aboutText">منصة تجمع المنتجات والخدمات من فئات متعددة عبر مصر والإمارات والسعودية، وتحوّل العميل مباشرة إلى صفحة المنتج الأصلية عند الضغط على الشراء.</p><div class="about-points"><span>✓ عربية RTL</span><span>✓ متجاوبة</span><span>✓ روابط شراء مباشرة</span><span>✓ 3 أسواق عربية</span></div></div><div class="about-card reveal"><img id="aboutImg" class="about-logo" src="assets/brand-board.png" alt="زُهي"><strong>ZUHI</strong><span>Saudi modern marketplace</span></div></div></section>
+
+<section id="contact" class="section contact-section"><div class="container">
+  <button class="contact-toggle" id="contactToggle" aria-expanded="false" aria-controls="contactPanel">
+    <span><span class="eyebrow">تواصل معنا</span><strong>خلّنا نسمع منك</strong></span>
+    <span class="contact-arrow">‹</span>
+  </button>
+  <div class="contact-panel" id="contactPanel">
+    <div class="contact-intro">
+      <p class="muted">للاستفسارات والشراكات وخدمة العملاء، فريق زُهي بيرد عليك في أقرب وقت.</p>
+      <div id="contactInfo" class="contact-info"></div>
+    </div>
+    <form id="contactForm" class="contact-form"><input id="cfName" required placeholder="الاسم"><input id="cfEmail" required type="email" placeholder="البريد الإلكتروني"><textarea id="cfMessage" required rows="5" placeholder="رسالتك"></textarea><button class="btn primary">إرسال الرسالة</button><div id="contactMsg" class="form-msg"></div></form>
+  </div>
+</div></section>
+</main>
+<footer><div class="container footer-grid"><div><div class="brand footer-brand"><img src="assets/brand-board.png" alt="زُهي" class="logo-img"><span><b>زُهي</b><small>ZUHI</small></span></div><p>تجربة تسوق سعودية بروح عصرية.</p></div><div><h4>روابط</h4><a href="#home">الرئيسية</a><a href="#products">المنتجات</a><a href="#services">الخدمات</a></div><div><h4>تواصل</h4><a href="#contact">تواصل معنا</a></div><div class="admin-entry"><a href="admin/index.html" class="admin-gear" aria-label="لوحة التحكم">⚙</a></div></div><div class="copyright">© <span id="year"></span> زُهي. جميع الحقوق محفوظة.</div></footer>
+<div id="orderModal" class="modal hidden" aria-hidden="true"><div class="modal-backdrop" data-close-order></div><div class="modal-card order-modal"><button class="close" data-close-order aria-label="إغلاق">×</button><span class="eyebrow">طلب مباشر من زُهي</span><h2 id="orderTitle">بيانات الطلب</h2><p class="muted">اكتب بياناتك وسنرسل طلبك مباشرة عبر واتساب.</p><form id="orderForm" class="contact-form"><input id="orderName" required placeholder="الاسم"><input id="orderPhone" required type="tel" placeholder="رقم الجوال"><textarea id="orderAddress" required rows="3" placeholder="العنوان والمدينة"></textarea><button class="btn primary">إرسال الطلب عبر واتساب</button></form></div></div><div id="shareModal" class="modal hidden" aria-hidden="true"><div class="modal-backdrop" data-close-share></div><div class="modal-card order-modal"><button class="close" data-close-share aria-label="إغلاق">×</button><span class="eyebrow">مشاركة زُهي</span><h2>شارك الموقع بسهولة</h2><p class="muted">اختر طريقة المشاركة التي تناسبك.</p><div class="share-actions"><button id="nativeShareAction" class="btn primary" type="button">مشاركة من الهاتف</button><button id="copyShareAction" class="btn secondary" type="button">نسخ الرابط</button></div></div></div><div id="toast-container" aria-live="polite"></div><script src="js/app.js"></script>
+</body><script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');</script></html>
