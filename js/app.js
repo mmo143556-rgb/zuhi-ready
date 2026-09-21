@@ -1,5 +1,5 @@
 const C=window.ZUHI_CONFIG||{};const sb=window.supabase?.createClient(C.SUPABASE_URL||'',C.SUPABASE_ANON_KEY||'');
-let categories=[],products=[],services=[],reviews=[],settings={},currentCountry='all',selectedProduct=null,installPrompt=null,manifestUrl=null,reviewTimer=null;
+let categories=[],products=[],services=[],reviews=[],settings={},currentCountry='all',selectedProduct=null,installPrompt=null,manifestUrl=null;
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[m]));
 function toast(m,err){const e=document.createElement('div');e.className='toast'+(err?' error':'');e.textContent=m;$('#toast-container').append(e);setTimeout(()=>e.remove(),2800)}
 const stars=n=>'★★★★★☆☆☆☆☆'.slice(5-n,10-n);
@@ -57,8 +57,6 @@ function renderReviews(){
   $('#emptyReviews').classList.toggle('hidden',reviews.length>0);
   if(!reviews.length)$('#emptyReviews').textContent='لا توجد تقييمات منشورة بعد. شغّل جزء التقييمات من ملف supabase.sql ثم حدّث الصفحة.';
   $('#reviewsGrid').innerHTML=reviews.map((r,i)=>`<div class="review-card" id="rv${i}"><button class="review-summary" onclick="toggleReview(${i})"><div><strong>${esc(r.name)}</strong><span class="review-stars">${stars(r.rating)}</span></div><span class="review-arrow">‹</span></button><p class="review-text">${esc(r.message)}</p></div>`).join('');
-  clearInterval(reviewTimer);
-  if(reviews.length>1){let i=0;reviewTimer=setInterval(()=>{document.querySelectorAll('.review-card').forEach(card=>card.classList.remove('open'));const card=$('#rv'+i);if(card)card.classList.add('open');i=(i+1)%reviews.length},4500)}
 }
 function toggleReview(i){$('#rv'+i).classList.toggle('open')}
 
