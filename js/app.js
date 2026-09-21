@@ -64,12 +64,13 @@ function renderProducts(){
   const q=($('#searchInput')?.value||'').toLowerCase(),f=$('#categoryFilter').value;
   const list=products.filter(p=>(f==='all'||p.category_id===f)&&(currentCountry==='all'||p.country===currentCountry)&&(!q||(`${p.name} ${p.description||''}`).toLowerCase().includes(q)));
   $('#emptyProducts').classList.toggle('hidden',list.length>0);
-  $('#productGrid').innerHTML=list.map(p=>`<article class="product-card reveal"><div class="product-img"><img src="${esc(p.image_url||'')}" alt="${esc(p.name)}" loading="lazy"><span class="badge">${esc(countryFlag(p.country))} ${esc(categories.find(c=>c.id===p.category_id)?.name||'منتج')}</span></div><div class="product-body"><h3>${esc(p.name)}</h3><button class="description-toggle" onclick="this.parentElement.classList.toggle('description-open')">الوصف <span>⌄</span></button><p class="product-description">${esc(p.description||'لا يوجد وصف لهذا المنتج.')}</p><div class="price">${Number(p.price||0).toLocaleString('ar-SA')} ر.س</div><div class="product-actions"><button class="btn primary full" onclick="buy('${p.id}')">شراء الآن ↗</button></div></div></article>`).join('');
+  $('#productGrid').innerHTML=list.map(p=>`<article class="product-card reveal"><div class="product-img"><img src="${esc(p.image_url||'')}" alt="${esc(p.name)}" loading="lazy"><span class="badge">${esc(countryFlag(p.country))} ${esc(categories.find(c=>c.id===p.category_id)?.name||'منتج')}</span></div><div class="product-body"><h3>${esc(p.name)}</h3><button class="description-toggle" onclick="showDetails('${p.id}')">الوصف والتفاصيل <span>⌄</span></button>${Number(p.price||0)>0?`<div class="price">${Number(p.price).toLocaleString('ar-SA')} ر.س</div>`:''}<div class="product-actions"><button class="btn primary full" onclick="buy('${p.id}')">شراء الآن ↗</button></div></div></article>`).join('');
   observe();
 }
 function countryFlag(c){return c==='مصر'?'🇪🇬':c==='الإمارات'?'🇦🇪':'🇸🇦'}
 function filterCat(id){$('#categoryFilter').value=id;renderProducts()}
-function buy(id){const p=products.find(x=>x.id===id);if(!p)return;selectedProduct=p;if(p.direct_order){$('#orderTitle').textContent=`طلب ${p.name}`;openModal('orderModal')}else if(p.affiliate_url){window.open(p.affiliate_url,'_blank','noopener,noreferrer')}else toast('رابط الشراء غير متاح لهذا المنتج',true)}
+function buy(id){const p=products.find(x=>x.id===id);if(!p)return;selectedProduct=p;if(p.affiliate_url){window.open(p.affiliate_url,'_blank','noopener,noreferrer')}else if(p.direct_order){$('#orderTitle').textContent=`طلب ${p.name}`;openModal('orderModal')}else toast('رابط الشراء غير متاح لهذا المنتج',true)}
+function showDetails(id){const p=products.find(x=>x.id===id);if(!p)return;selectedProduct=p;$('#detailImage').src=p.image_url||'assets/brand-board.png';$('#detailImage').alt=p.name;$('#detailTitle').textContent=p.name;$('#detailCountry').textContent=`${countryFlag(p.country)} ${p.country||''}`;$('#detailDescription').textContent=p.description||'لا يوجد وصف لهذا المنتج.';$('#detailPrice').textContent=Number(p.price||0)>0?`${Number(p.price).toLocaleString('ar-SA')} ر.س`:'';openModal('productDetailModal')}
 function openModal(id){const e=$('#'+id);e.classList.remove('hidden');e.setAttribute('aria-hidden','false')}
 function closeModal(id){const e=$('#'+id);e.classList.add('hidden');e.setAttribute('aria-hidden','true')}
 function registerShare(name,phone){localStorage.setItem('zuhi_share_user',JSON.stringify({name,phone}));const count=Number(localStorage.getItem('zuhi_share_count')||0)+1;localStorage.setItem('zuhi_share_count',count);return count}
@@ -93,11 +94,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('#searchInput').oninput=renderProducts;
   $('#mobileMenuBtn').onclick=()=>$('#mainNav').classList.toggle('open');
   document.querySelectorAll('[data-close-order]').forEach(e=>e.onclick=()=>closeModal('orderModal'));
+  document.querySelectorAll('[data-close-product]').forEach(e=>e.onclick=()=>closeModal('productDetailModal'));
   document.querySelectorAll('[data-close-share]').forEach(e=>e.onclick=()=>closeModal('shareModal'));
   const shareData=()=>({title:document.title,text:'اكتشف زُهي',url:location.href.split('#')[0]});
   $('#shareBtn').onclick=()=>openModal('shareModal');
   $('#nativeShareAction').onclick=async()=>{try{if(navigator.share)await navigator.share(shareData());else{await navigator.clipboard.writeText(shareData().url);toast('تم نسخ رابط زُهي للمشاركة')}closeModal('shareModal')}catch(error){if(error.name!=='AbortError')toast('تعذر تجهيز رابط المشاركة',true)}};
   $('#copyShareAction').onclick=async()=>{try{await navigator.clipboard.writeText(shareData().url);toast('تم نسخ رابط زُهي');closeModal('shareModal')}catch(error){toast('تعذر نسخ الرابط، انسخه من شريط العنوان',true)}};
+  $('#detailBuy').onclick=()=>{closeModal('productDetailModal');if(selectedProduct)buy(selectedProduct.id)};
   $('#orderForm').onsubmit=e=>{e.preventDefault();if(!selectedProduct||!settings.whatsapp)return toast('أضف رقم واتساب المتجر من الإعدادات أولًا',true);const phone=settings.whatsapp.replace(/[^0-9]/g,'');const text=`طلب جديد من زُهي%0Aالمنتج: ${encodeURIComponent(selectedProduct.name)}%0Aالاسم: ${encodeURIComponent($('#orderName').value.trim())}%0Aالجوال: ${encodeURIComponent($('#orderPhone').value.trim())}%0Aالعنوان: ${encodeURIComponent($('#orderAddress').value.trim())}`;window.open(`https://wa.me/${phone}?text=${text}`,'_blank','noopener,noreferrer');closeModal('orderModal');e.target.reset()};
 
   document.querySelectorAll('.country-tab').forEach(btn=>btn.onclick=()=>{
