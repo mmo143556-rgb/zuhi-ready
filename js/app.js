@@ -58,7 +58,7 @@ function renderReviews(){
   if(!reviews.length)$('#emptyReviews').textContent='لا توجد تقييمات منشورة بعد. شغّل جزء التقييمات من ملف supabase.sql ثم حدّث الصفحة.';
   $('#reviewsGrid').innerHTML=reviews.map((r,i)=>`<div class="review-card" id="rv${i}"><button class="review-summary" onclick="toggleReview(${i})"><div><strong>${esc(r.name)}</strong><span class="review-stars">${stars(r.rating)}</span></div><span class="review-arrow">‹</span></button><p class="review-text">${esc(r.message)}</p></div>`).join('');
   clearInterval(reviewTimer);
-  if(reviews.length>1){let i=0;reviewTimer=setInterval(()=>{document.querySelectorAll('.review-card').forEach(card=>card.classList.remove('open'));const card=$('#rv'+i);if(card){card.classList.add('open');card.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'})}i=(i+1)%reviews.length},4500)}
+  if(reviews.length>1){let i=0;reviewTimer=setInterval(()=>{document.querySelectorAll('.review-card').forEach(card=>card.classList.remove('open'));const card=$('#rv'+i);if(card)card.classList.add('open');i=(i+1)%reviews.length},4500)}
 }
 function toggleReview(i){$('#rv'+i).classList.toggle('open')}
 
