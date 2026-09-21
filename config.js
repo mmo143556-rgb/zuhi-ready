@@ -4,6 +4,5 @@
 window.ZUHI_CONFIG = {
   SUPABASE_URL: 'https://euqgnafnntkgzjglmdaz.supabase.co',
   SUPABASE_ANON_KEY: 'sb_publishable_HjBazKLisXLQysoYdLh9eA_AOWufFZb',
-  LOCAL_ADMIN_MODE: true,
-  LOCAL_ADMIN_PASSWORD: '123456'
+  LOCAL_ADMIN_MODE: false
 };
