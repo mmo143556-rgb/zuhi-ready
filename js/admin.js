@@ -24,7 +24,8 @@ async function loadAll(){
     sb.from('messages').select('*').order('created_at',{ascending:false}),
     sb.from('site_settings').select('*').eq('id',true).maybeSingle()
   ]);
-  if(c.error||p.error||s.error||r.error||m.error){toast('خطأ في تحميل البيانات',true);console.error(c.error||p.error||s.error||r.error||m.error);return}
+  if(c.error||p.error||s.error||m.error){toast('خطأ في تحميل البيانات الأساسية',true);console.error(c.error||p.error||s.error||m.error);return}
+  if(r.error)console.warn('جدول testimonials غير جاهز، شغّل supabase.sql لإنشاء آراء العملاء.',r.error);
   cats=c.data||[];prods=p.data||[];svcs=s.data||[];revs=r.data||[];msgs=m.data||[];settings=st.data||{};
   $('#pCategory').innerHTML=cats.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
   fillSettingsForm();
