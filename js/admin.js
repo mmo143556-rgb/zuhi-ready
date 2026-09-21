@@ -14,7 +14,7 @@ async function showDash(session){if(LOCAL_MODE||session?.local){$('#loginBox').c
 async function loadAll(){
   if(LOCAL_MODE){
     const [c,p,s,m,st]=await Promise.all([sb?.from('categories').select('*').order('sort_order'),sb?.from('products').select('*').order('created_at',{ascending:false}),sb?.from('services').select('*').order('sort_order'),sb?.from('messages').select('*').order('created_at',{ascending:false}),sb?.from('site_settings').select('*').eq('id',true).maybeSingle()]);
-    cats=c?.data||[];prods=p?.data||[];svcs=s?.data||[];msgs=m?.data||[];settings=localRead(LOCAL_SETTINGS_KEY,st?.data||{});revs=localRead(LOCAL_REVIEWS_KEY,buildSeedReviews());$('#pCategory').innerHTML=cats.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');fillSettingsForm();renderLists();return;
+    cats=c?.data||[];prods=p?.data||[];svcs=s?.data||[];msgs=m?.data||[];settings=localRead(LOCAL_SETTINGS_KEY,st?.data||{});revs=localRead(LOCAL_REVIEWS_KEY,buildSeedReviews());$('#pCategory').innerHTML='<option value="" disabled selected>اختر القسم</option>'+cats.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');fillSettingsForm();renderLists();return;
   }
   const [c,p,s,r,m,st]=await Promise.all([
     sb.from('categories').select('*').order('sort_order'),
@@ -27,7 +27,7 @@ async function loadAll(){
   if(c.error||p.error||s.error||m.error){toast('خطأ في تحميل البيانات الأساسية',true);console.error(c.error||p.error||s.error||m.error);return}
   if(r.error)console.warn('جدول testimonials غير جاهز، شغّل supabase.sql لإنشاء آراء العملاء.',r.error);
   cats=c.data||[];prods=p.data||[];svcs=s.data||[];revs=r.data||[];msgs=m.data||[];settings=st.data||{};
-  $('#pCategory').innerHTML=cats.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  $('#pCategory').innerHTML='<option value="" disabled selected>اختر القسم</option>'+cats.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
   fillSettingsForm();
   renderLists();
 }
@@ -67,7 +67,7 @@ async function uploadTo(bucket,file){if(!file)return null;const ext=file.name.sp
 const uploadImage=file=>uploadTo('product-images',file);
 
 // products
-function editP(id){const p=prods.find(x=>x.id===id);$('#productId').value=p.id;$('#pName').value=p.name;$('#pCategory').value=p.category_id;$('#pCountry').value=p.country||'السعودية';$('#pImage').value=p.image_url||'';$('#pAffiliate').value=p.affiliate_url;$('#pDescription').value=p.description||'';$('#pActive').checked=p.active;$('#pDirectOrder').checked=Boolean(p.direct_order)}
+function editP(id){const p=prods.find(x=>x.id===id);$('#productId').value=p.id;$('#pName').value=p.name;$('#pCategory').value=p.category_id;$('#pCountry').value=p.country||'السعودية';$('#pPrice').value=p.price||'';$('#pImage').value=p.image_url||'';$('#pAffiliate').value=p.affiliate_url;$('#pDescription').value=p.description||'';$('#pActive').checked=p.active;$('#pDirectOrder').checked=Boolean(p.direct_order)}
 async function delP(id){if(!confirm('حذف المنتج؟'))return;const {error}=await sb.from('products').delete().eq('id',id);if(error)toast(error.message,true);else{toast('تم الحذف');loadAll()}}
 
 // categories
@@ -90,7 +90,7 @@ $('#loginForm').onsubmit=async e=>{e.preventDefault();if(LOCAL_MODE){if($('#pass
 $('#resetPassword').onclick=async()=>{const email=$('#email').value.trim();if(!email)return $('#loginMsg').textContent='اكتب البريد الإلكتروني أولًا';const options=location.protocol==='http:'||location.protocol==='https:'?{redirectTo:location.href}:undefined;const {error}=options?await sb.auth.resetPasswordForEmail(email,options):await sb.auth.resetPasswordForEmail(email);$('#loginMsg').textContent=error?(error.message.includes('rate limit')?'تم تجاوز حد رسائل البريد. انتظر قليلًا ثم أعد المحاولة أو غيّر كلمة السر من Supabase Dashboard.':error.message):'تم إرسال رابط تغيير كلمة السر إلى بريدك.'};
 $('#logoutBtn').onclick=()=>{if(LOCAL_MODE){localStorage.removeItem('zuhi_local_admin');showLogin()}else sb.auth.signOut()};
 
-$('#productForm').onsubmit=async e=>{e.preventDefault();const id=$('#productId').value;let image=$('#pImage').value.trim();const file=$('#pFile').files[0];if(file)image=await uploadImage(file);if(!image)return toast('أضف صورة أو رابط صورة',true);const direct=$('#pDirectOrder').checked,affiliate=$('#pAffiliate').value.trim();if(!direct&&!affiliate)return toast('أضف رابط الشراء أو فعّل الطلب عبر واتساب',true);const row={name:$('#pName').value.trim(),category_id:$('#pCategory').value,country:$('#pCountry').value,image_url:image,affiliate_url:affiliate,description:$('#pDescription').value.trim(),active:$('#pActive').checked,direct_order:direct};let r=id?await sb.from('products').update(row).eq('id',id):await sb.from('products').insert(row);if(r.error)toast(r.error.message,true);else{toast('تم حفظ المنتج');e.target.reset();$('#productId').value='';$('#pActive').checked=true;$('#pDirectOrder').checked=false;loadAll()}};
+$('#productForm').onsubmit=async e=>{e.preventDefault();const id=$('#productId').value;let image=$('#pImage').value.trim();const file=$('#pFile').files[0];if(file)image=await uploadImage(file);if(!image)return toast('أضف صورة أو رابط صورة',true);const direct=$('#pDirectOrder').checked,affiliate=$('#pAffiliate').value.trim();if(!direct&&!affiliate)return toast('أضف رابط الشراء أو فعّل الطلب عبر واتساب',true);const row={name:$('#pName').value.trim(),category_id:$('#pCategory').value,country:$('#pCountry').value,price:Number($('#pPrice').value)||0,image_url:image,affiliate_url:affiliate,description:$('#pDescription').value.trim(),active:$('#pActive').checked,direct_order:direct};let r=id?await sb.from('products').update(row).eq('id',id):await sb.from('products').insert(row);if(r.error)toast(r.error.message,true);else{toast('تم حفظ المنتج');e.target.reset();$('#productId').value='';$('#pActive').checked=true;$('#pDirectOrder').checked=false;loadAll()}};
 $('#resetProduct').onclick=()=>{$('#productForm').reset();$('#productId').value='';$('#pActive').checked=true;$('#pDirectOrder').checked=false};
 
 $('#categoryForm').onsubmit=async e=>{e.preventDefault();const id=$('#categoryId').value,row={name:$('#cName').value,icon:$('#cIcon').value||'✦'};const r=id?await sb.from('categories').update(row).eq('id',id):await sb.from('categories').insert(row);if(r.error)toast(r.error.message,true);else{toast('تم حفظ القسم');e.target.reset();$('#categoryId').value='';loadAll()}};

@@ -95,12 +95,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('#mobileMenuBtn').onclick=()=>$('#mainNav').classList.toggle('open');
   document.querySelectorAll('[data-close-order]').forEach(e=>e.onclick=()=>closeModal('orderModal'));
   document.querySelectorAll('[data-close-product]').forEach(e=>e.onclick=()=>closeModal('productDetailModal'));
+  document.querySelectorAll('[data-close-review]').forEach(e=>e.onclick=()=>closeModal('reviewModal'));
   document.querySelectorAll('[data-close-share]').forEach(e=>e.onclick=()=>closeModal('shareModal'));
   const shareData=()=>({title:document.title,text:'اكتشف زُهي',url:location.href.split('#')[0]});
   $('#shareBtn').onclick=()=>openModal('shareModal');
   $('#nativeShareAction').onclick=async()=>{try{if(navigator.share)await navigator.share(shareData());else{await navigator.clipboard.writeText(shareData().url);toast('تم نسخ رابط زُهي للمشاركة')}closeModal('shareModal')}catch(error){if(error.name!=='AbortError')toast('تعذر تجهيز رابط المشاركة',true)}};
   $('#copyShareAction').onclick=async()=>{try{await navigator.clipboard.writeText(shareData().url);toast('تم نسخ رابط زُهي');closeModal('shareModal')}catch(error){toast('تعذر نسخ الرابط، انسخه من شريط العنوان',true)}};
   $('#detailBuy').onclick=()=>{closeModal('productDetailModal');if(selectedProduct)buy(selectedProduct.id)};
+  $('#addReviewBtn').onclick=()=>openModal('reviewModal');
+  $('#publicReviewForm').onsubmit=async e=>{e.preventDefault();const msg=$('#publicReviewMsg');if(!sb){msg.textContent='الموقع غير متصل بقاعدة البيانات.';return}const row={name:$('#publicReviewName').value.trim(),rating:Number($('#publicReviewRating').value),message:$('#publicReviewMessage').value.trim(),active:true,sort_order:reviews.length+1};const {error}=await sb.from('testimonials').insert(row);if(error){msg.textContent='تعذر نشر الرأي. تأكد من تشغيل supabase.sql.';console.error(error);return}e.target.reset();msg.textContent='';closeModal('reviewModal');toast('تم نشر رأيك، شكرًا لمشاركتك');load()};
   $('#orderForm').onsubmit=e=>{e.preventDefault();if(!selectedProduct||!settings.whatsapp)return toast('أضف رقم واتساب المتجر من الإعدادات أولًا',true);const phone=settings.whatsapp.replace(/[^0-9]/g,'');const text=`طلب جديد من زُهي%0Aالمنتج: ${encodeURIComponent(selectedProduct.name)}%0Aالاسم: ${encodeURIComponent($('#orderName').value.trim())}%0Aالجوال: ${encodeURIComponent($('#orderPhone').value.trim())}%0Aالعنوان: ${encodeURIComponent($('#orderAddress').value.trim())}`;window.open(`https://wa.me/${phone}?text=${text}`,'_blank','noopener,noreferrer');closeModal('orderModal');e.target.reset()};
 
   document.querySelectorAll('.country-tab').forEach(btn=>btn.onclick=()=>{
