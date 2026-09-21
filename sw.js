@@ -1,5 +1,5 @@
-const CACHE = 'zuhi-shell-v4';
-const SHELL = ['./', './index.html', './assets/style.css', './js/app.js', './config.js', './manifest.webmanifest', './assets/brand-board.png'];
+const CACHE = 'zuhi-shell-v5';
+const SHELL = ['./', './index.html', './assets/style.css', './js/app.js', './config.js', './manifest.webmanifest', './assets/brand-board.png', './admin/index.html', './js/admin.js'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL))));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key))))));
 self.addEventListener('fetch', event => {
