@@ -1,0 +1,87 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>إدارة زُهي</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/style.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../config.js"></script></head><body class="admin-page"><div class="admin-shell"><div class="admin-head"><a class="brand" href="../index.html"><img src="../assets/brand-board.png" class="logo-img"><span><b>زُهي</b><small>ADMIN</small></span></a><button id="logoutBtn" class="btn secondary hidden">خروج</button></div>
+
+<section id="loginBox" class="admin-auth"><span class="eyebrow">دخول محلي</span><h1>لوحة إدارة زُهي</h1><p class="muted">اكتب رمز الدخول المحلي لفتح لوحة الإدارة على هذا الجهاز.</p><form id="loginForm"><input id="email" type="email" class="hidden" tabindex="-1" autocomplete="off"><input id="password" type="password" required placeholder="رمز الدخول المحلي" autocomplete="current-password"><button class="btn primary full">دخول</button><button id="resetPassword" type="button" class="btn secondary full hidden">إرسال رابط تغيير كلمة السر</button><div id="loginMsg" class="form-msg"></div></form></section>
+
+<section id="dashboard" class="hidden">
+<div class="dashboard-head"><div><span class="eyebrow">لوحة التحكم</span><h1>إدارة المحتوى</h1></div><a class="btn secondary" href="../index.html">عرض الموقع</a></div>
+<div class="admin-tabs">
+  <button class="tab active" data-tab="productsTab">المنتجات</button>
+  <button class="tab" data-tab="categoriesTab">الأقسام</button>
+  <button class="tab" data-tab="servicesTab">الخدمات</button>
+  <button class="tab" data-tab="reviewsTab">آراء العملاء</button>
+  <button class="tab" data-tab="messagesTab">الرسائل <span id="unreadBadge" class="unread-badge hidden">0</span></button>
+  <button class="tab" data-tab="settingsTab">الإعدادات</button>
+</div>
+
+<div id="productsTab" class="tab-content">
+  <form id="productForm" class="admin-form">
+    <input type="hidden" id="productId">
+    <input id="pName" required placeholder="اسم المنتج">
+    <select id="pCategory" required></select>
+    <select id="pCountry" required><option value="السعودية">🇸🇦 السعودية</option><option value="مصر">🇪🇬 مصر</option><option value="الإمارات">🇦🇪 الإمارات</option></select>
+    <input id="pPrice" type="number" min="0" step="0.01" placeholder="السعر">
+    <input id="pImage" placeholder="رابط الصورة (اختياري)">
+    <input id="pAffiliate" placeholder="رابط الشراء/العمولة (اتركه فارغًا للطلب عبر واتساب)">
+    <textarea id="pDescription" placeholder="الوصف"></textarea>
+    <label class="upload">رفع صورة من جهازك<input id="pFile" type="file" accept="image/*"></label>
+    <label class="check"><input id="pActive" type="checkbox" checked> المنتج ظاهر للزوار</label><label class="check"><input id="pDirectOrder" type="checkbox"> طلب مباشر عبر واتساب</label>
+    <div class="form-actions"><button class="btn primary">حفظ المنتج</button><button type="button" id="resetProduct" class="btn secondary">جديد</button></div>
+  </form>
+  <div id="productsList" class="admin-list"></div>
+</div>
+
+<div id="categoriesTab" class="tab-content hidden">
+  <form id="categoryForm" class="admin-form"><input type="hidden" id="categoryId"><input id="cName" required placeholder="اسم القسم"><input id="cIcon" placeholder="رمز/أيقونة"><button class="btn primary">حفظ القسم</button></form>
+  <div id="categoriesList" class="admin-list"></div>
+</div>
+
+<div id="servicesTab" class="tab-content hidden">
+  <form id="serviceForm" class="admin-form"><input type="hidden" id="serviceId"><input id="sName" required placeholder="اسم الخدمة"><input id="sIcon" placeholder="رمز"><input id="sLink" placeholder="رابط الخدمة"><textarea id="sDescription" placeholder="الوصف"></textarea><button class="btn primary">حفظ الخدمة</button></form>
+  <div id="servicesList" class="admin-list"></div>
+</div>
+
+<div id="reviewsTab" class="tab-content hidden">
+  <form id="reviewForm" class="admin-form">
+    <input type="hidden" id="reviewId">
+    <input id="rName" required placeholder="اسم العميل">
+    <select id="rRating"><option value="5">★★★★★ (5)</option><option value="4">★★★★☆ (4)</option><option value="3">★★★☆☆ (3)</option></select>
+    <textarea id="rMessage" required placeholder="نص التقييم"></textarea>
+    <label class="check"><input id="rActive" type="checkbox" checked> ظاهر للزوار</label>
+    <div class="form-actions"><button class="btn primary">حفظ التقييم</button><button type="button" id="resetReview" class="btn secondary">جديد</button><button type="button" id="seedReviews" class="btn secondary">إضافة 60 رأيًا جاهزًا</button></div>
+  </form>
+  <div id="reviewsList" class="admin-list"></div>
+</div>
+
+<div id="messagesTab" class="tab-content hidden">
+  <p class="muted">رسائل العملاء المرسلة من نموذج "تواصل معنا".</p>
+  <div id="messagesList" class="admin-list"></div>
+</div>
+
+<div id="settingsTab" class="tab-content hidden">
+  <form id="settingsForm" class="admin-form">
+    <input id="siteName" placeholder="اسم الموقع">
+    <input id="siteTagline" placeholder="الوصف / الشعار">
+    <input id="heroEyebrow" placeholder="النص الصغير أعلى الواجهة">
+    <input id="heroTitle" placeholder="العنوان الرئيسي">
+    <input id="heroAccent" placeholder="الكلمة المميزة في العنوان">
+    <input id="heroText" placeholder="وصف الواجهة">
+    <input id="heroPrimaryLabel" placeholder="نص الزر الأول">
+    <input id="heroSecondaryLabel" placeholder="نص الزر الثاني">
+    <input id="aboutTitle" placeholder="عنوان من نحن">
+    <textarea id="aboutText" placeholder="نص من نحن"></textarea>
+    <input id="whatsapp" placeholder="رقم واتساب (مع كود الدولة)">
+    <input id="phone" placeholder="رقم الهاتف">
+    <input id="contactEmail" placeholder="البريد الإلكتروني للتواصل">
+    <input id="address" placeholder="العنوان">
+    <label class="upload">صورة الغلاف الرئيسية (Hero)<input id="heroFile" type="file" accept="image/*"></label>
+    <input id="heroImageUrl" placeholder="أو رابط صورة الغلاف مباشرة">
+    <label class="upload">الصورة المصغّرة في قسم "من نحن"<input id="aboutFile" type="file" accept="image/*"></label>
+    <input id="aboutImageUrl" placeholder="أو رابط الصورة المصغّرة مباشرة">
+    <label class="upload">اللوجو الرئيسي والصغير<input id="logoFile" type="file" accept="image/*"></label>
+    <input id="logoImageUrl" placeholder="أو رابط اللوجو (يستخدم صورة النبذة تلقائيًا إذا تُرك فارغًا)">
+    <div class="form-actions"><button class="btn primary">حفظ الإعدادات</button></div>
+  </form>
+  <div class="security-note">الوضع المحلي يحفظ التعديلات في هذا المتصفح فقط. غيّر LOCAL_ADMIN_PASSWORD في config.js قبل النشر، ولا تضع service_role key في الموقع.</div>
+</div>
+
+</section></div><div id="toast-container"></div><script src="../js/admin.js"></script></body></html>
