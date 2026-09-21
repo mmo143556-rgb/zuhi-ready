@@ -151,6 +151,8 @@ drop policy if exists "public read active testimonials" on public.testimonials;
 create policy "public read active testimonials" on public.testimonials for select using (active = true or public.is_admin());
 drop policy if exists "admin manage testimonials" on public.testimonials;
 create policy "admin manage testimonials" on public.testimonials for all using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "anyone can submit testimonial" on public.testimonials;
+create policy "anyone can submit testimonial" on public.testimonials for insert with check (active = true);
 
 -- Anyone can send a contact message; only the admin can read/manage them
 drop policy if exists "anyone can send a message" on public.messages;
