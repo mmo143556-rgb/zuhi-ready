@@ -17,8 +17,8 @@
   <form id="productForm" class="admin-form">
     <input type="hidden" id="productId">
     <input id="pName" required placeholder="اسم المنتج">
-    <select id="pCategory" required></select>
-    <select id="pCountry" required><option value="السعودية">🇸🇦 السعودية</option><option value="مصر">🇪🇬 مصر</option><option value="الإمارات">🇦🇪 الإمارات</option></select>
+    <label class="field-label" for="pCategory">نوع المنتج / القسم<select id="pCategory" required><option value="" disabled selected>اختر القسم</option></select></label>
+    <label class="field-label" for="pCountry">الدولة<select id="pCountry" required><option value="السعودية">🇸🇦 السعودية</option><option value="مصر">🇪🇬 مصر</option><option value="الإمارات">🇦🇪 الإمارات</option></select></label>
     <input id="pImage" placeholder="رابط الصورة (اختياري)">
     <input id="pAffiliate" placeholder="رابط الشراء/العمولة (اتركه فارغًا للطلب عبر واتساب)">
     <textarea id="pDescription" placeholder="الوصف"></textarea>
@@ -83,4 +83,4 @@
   <div class="security-note">تعديلات لوحة الإدارة تُحفظ في Supabase وتظهر للزوار والتطبيق بعد تحديث البيانات. الدخول محمي عبر Supabase Auth وصلاحيات RLS. استخدم المفتاح العام فقط، ولا تضع service_role key في الموقع.</div>
 </div>
 
-</section></div><div id="toast-container"></div><script src="../js/admin.js"></script></body></html>
+</section></div><div id="toast-container"></div><script src="../js/admin.js?v=admin-product-v2"></script></body></html>
