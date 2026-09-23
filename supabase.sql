@@ -168,6 +168,8 @@ drop policy if exists "public read settings" on public.site_settings;
 create policy "public read settings" on public.site_settings for select using (true);
 drop policy if exists "admin update settings" on public.site_settings;
 create policy "admin update settings" on public.site_settings for update using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "admin insert settings" on public.site_settings;
+create policy "admin insert settings" on public.site_settings for insert with check (public.is_admin());
 
 -- Storage bucket for site-wide images (hero / about) uploaded from the admin panel
 insert into storage.buckets (id,name,public) values ('site-images','site-images',true) on conflict (id) do nothing;
