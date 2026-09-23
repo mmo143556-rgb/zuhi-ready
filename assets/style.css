@@ -87,3 +87,18 @@ main,footer,.site-header{position:relative;z-index:2}
 @keyframes loaderSpin{to{transform:rotate(360deg)}}
 @keyframes loaderPulse{0%{opacity:.7;transform:scale(.85)}100%{opacity:0;transform:scale(1.35)}}
 @media(prefers-reduced-motion: reduce){.loader-ring{animation-duration:2.6s}.loader-ring::after{animation:none;display:none}}
+/* --- additions: fixes bundle 4 (no removals) --- */
+.wave-canvas{opacity:.66}
+@media(max-width:760px){.wave-canvas{opacity:.74}}
+.loader-particles{position:absolute;inset:0;pointer-events:none}
+.loader-particle{position:absolute;top:50%;left:50%;width:5px;height:5px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1);animation:loaderParticleMove 1.6s ease-in infinite}
+@keyframes loaderParticleMove{0%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1)}18%{opacity:1}88%{opacity:.85}100%{opacity:0;transform:translate(-50%,-50%) scale(.25)}}
+@media(prefers-reduced-motion: reduce){.loader-particles{display:none}}
+.footer-credit-btn{display:block;margin-top:6px;background:none;border:0;color:inherit;font:inherit;opacity:.8;cursor:pointer;text-decoration:underline;padding:0;font-size:.85rem}
+.footer-credit-btn:hover{opacity:1;color:var(--neon)}
+.dev-credit-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:85;display:flex;align-items:center;gap:12px;max-width:320px;background:#fff;border:2px solid var(--neon);border-radius:16px;padding:14px 18px;box-shadow:0 0 0 4px rgba(168,255,62,.15),0 0 30px rgba(168,255,62,.55),0 20px 50px rgba(0,0,0,.28);animation:devCreditIn .3s ease}
+.dev-credit-popup.hidden{display:none}
+.dev-credit-popup img{width:52px;height:52px;flex:none;border-radius:50%;object-fit:cover;border:2px solid var(--neon);box-shadow:0 0 14px rgba(168,255,62,.6)}
+.dev-credit-popup span{font-family:Cairo;font-size:.85rem;color:var(--ink);line-height:1.6}
+.dev-credit-popup b{color:var(--brand)}
+@keyframes devCreditIn{from{opacity:0;transform:translate(-50%,-50%) scale(.9)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
