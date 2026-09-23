@@ -141,6 +141,8 @@ alter table public.site_settings add column if not exists hero_primary_label tex
 alter table public.site_settings add column if not exists hero_secondary_label text default '';
 alter table public.site_settings add column if not exists about_title text default '';
 alter table public.site_settings add column if not exists about_text text default '';
+alter table public.site_settings add column if not exists loader_logo_url text not null default '';
+alter table public.site_settings add column if not exists developer_photo_url text not null default '';
 insert into public.site_settings (id) values (true) on conflict (id) do nothing;
 
 alter table public.testimonials enable row level security;
