@@ -34,10 +34,11 @@ function applySettings(){
   Object.entries(textMap).forEach(([id,value])=>{if(value&&$('#'+id))$('#'+id).textContent=value});
   const info=[];
   if(settings.phone)info.push(`<a href="tel:${esc(settings.phone)}">📞 ${esc(settings.phone)}</a>`);
-  if(settings.whatsapp)info.push(`<a href="https://wa.me/${esc(settings.whatsapp.replace(/[^0-9]/g,''))}" target="_blank" rel="noopener">🟢 واتساب</a>`);
   if(settings.email)info.push(`<a href="mailto:${esc(settings.email)}">✉️ ${esc(settings.email)}</a>`);
   if(settings.address)info.push(`<span>📍 ${esc(settings.address)}</span>`);
   $('#contactInfo').innerHTML=info.join('');
+  const loaderLogo=$('#pageLoader .loader-logo');if(loaderLogo)loaderLogo.src=settings.loader_logo_url||logo;
+  const devPhoto=$('#devCreditPhoto');if(devPhoto)devPhoto.src=settings.developer_photo_url||logo;
 }
 
 function subscribeRealtime(){if(!sb)return;let channel=sb.channel('zuhi-live').on('postgres_changes',{event:'*',schema:'public',table:'products'},load).on('postgres_changes',{event:'*',schema:'public',table:'categories'},load).on('postgres_changes',{event:'*',schema:'public',table:'services'},load).on('postgres_changes',{event:'*',schema:'public',table:'site_settings'},load);if(!C.LOCAL_ADMIN_MODE)channel=channel.on('postgres_changes',{event:'*',schema:'public',table:'testimonials'},load);channel.subscribe()}
@@ -83,8 +84,22 @@ window.addEventListener('popstate',()=>{const open=document.querySelectorAll('.m
 function registerShare(name,phone){localStorage.setItem('zuhi_share_user',JSON.stringify({name,phone}));const count=Number(localStorage.getItem('zuhi_share_count')||0)+1;localStorage.setItem('zuhi_share_count',count);return count}
 function observe(){document.querySelectorAll('.reveal:not(.observed)').forEach(e=>{e.classList.add('observed');new IntersectionObserver(es=>es.forEach(x=>x.isIntersecting&&x.target.classList.add('visible')),{threshold:.1}).observe(e)})}
 
+function spawnLoaderParticles(){
+  const host=$('#pageLoader');if(!host)return;
+  const wrap=document.createElement('div');wrap.className='loader-particles';
+  for(let i=0;i<10;i++){
+    const angle=Math.random()*Math.PI*2,dist=68+Math.random()*42;
+    const p=document.createElement('span');p.className='loader-particle';
+    p.style.setProperty('--dx',`${Math.cos(angle)*dist}px`);
+    p.style.setProperty('--dy',`${Math.sin(angle)*dist}px`);
+    p.style.animationDelay=`${(Math.random()*1.4).toFixed(2)}s`;
+    wrap.appendChild(p);
+  }
+  host.appendChild(wrap);
+}
 document.addEventListener('DOMContentLoaded',()=>{
   document.querySelectorAll('.logo-img').forEach(image=>image.src='assets/brand-board.png');
+  spawnLoaderParticles();
   startWave();
   load();
   setTimeout(hidePageLoader,4000);
@@ -137,6 +152,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('#footerContactLink')?.addEventListener('click',()=>{
     const panel=$('#contactPanel'),toggle=$('#contactToggle');
     if(panel&&!panel.classList.contains('open')){panel.classList.add('open');toggle?.setAttribute('aria-expanded','true')}
+  });
+
+  let devCreditTimer=null;
+  $('#devCreditBtn')?.addEventListener('click',()=>{
+    const el=$('#devCreditPopup');if(!el)return;
+    clearTimeout(devCreditTimer);
+    el.classList.remove('hidden');
+    devCreditTimer=setTimeout(()=>el.classList.add('hidden'),2000);
   });
 
   setTimeout(()=>{

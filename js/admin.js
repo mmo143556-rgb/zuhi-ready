@@ -50,6 +50,8 @@ function fillSettingsForm(){
   $('#heroImageUrl').value=settings.hero_image_url||'';
   $('#aboutImageUrl').value=settings.about_image_url||'';
   $('#logoImageUrl').value=settings.logo_image_url||'';
+  $('#loaderLogoUrl').value=settings.loader_logo_url||'';
+  $('#devPhotoUrl').value=settings.developer_photo_url||'';
   const adminLogo=document.querySelector('.admin-head .logo-img');if(adminLogo)adminLogo.src=settings.logo_image_url||settings.about_image_url||adminLogo.src;
 }
 
@@ -103,12 +105,14 @@ $('#seedReviews').onclick=()=>{if(!confirm('إضافة 60 رأيًا جاهزً�
 
 $('#settingsForm').onsubmit=async e=>{
   e.preventDefault();
-  let heroUrl=$('#heroImageUrl').value.trim(),aboutUrl=$('#aboutImageUrl').value.trim(),logoUrl=$('#logoImageUrl').value.trim();
-  const heroFile=$('#heroFile').files[0],aboutFile=$('#aboutFile').files[0],logoFile=$('#logoFile').files[0];
+  let heroUrl=$('#heroImageUrl').value.trim(),aboutUrl=$('#aboutImageUrl').value.trim(),logoUrl=$('#logoImageUrl').value.trim(),loaderLogoUrl=$('#loaderLogoUrl').value.trim(),devPhotoUrl=$('#devPhotoUrl').value.trim();
+  const heroFile=$('#heroFile').files[0],aboutFile=$('#aboutFile').files[0],logoFile=$('#logoFile').files[0],loaderLogoFile=$('#loaderLogoFile').files[0],devPhotoFile=$('#devPhotoFile').files[0];
   if(heroFile){const u=await uploadTo('site-images',heroFile);if(u)heroUrl=u}
   if(aboutFile){const u=await uploadTo('site-images',aboutFile);if(u)aboutUrl=u}
   if(logoFile){const u=await uploadTo('site-images',logoFile);if(u)logoUrl=u}
-  const row={id:true,site_name:$('#siteName').value.trim(),site_tagline:$('#siteTagline').value.trim(),hero_eyebrow:$('#heroEyebrow').value.trim(),hero_title:$('#heroTitle').value.trim(),hero_accent:$('#heroAccent').value.trim(),hero_text:$('#heroText').value.trim(),hero_primary_label:$('#heroPrimaryLabel').value.trim(),hero_secondary_label:$('#heroSecondaryLabel').value.trim(),about_title:$('#aboutTitle').value.trim(),about_text:$('#aboutText').value.trim(),whatsapp:$('#whatsapp').value.trim(),phone:$('#phone').value.trim(),email:$('#contactEmail').value.trim(),address:$('#address').value.trim(),hero_image_url:heroUrl,about_image_url:aboutUrl,logo_image_url:logoUrl||aboutUrl,updated_at:new Date().toISOString()};
+  if(loaderLogoFile){const u=await uploadTo('site-images',loaderLogoFile);if(u)loaderLogoUrl=u}
+  if(devPhotoFile){const u=await uploadTo('site-images',devPhotoFile);if(u)devPhotoUrl=u}
+  const row={id:true,site_name:$('#siteName').value.trim(),site_tagline:$('#siteTagline').value.trim(),hero_eyebrow:$('#heroEyebrow').value.trim(),hero_title:$('#heroTitle').value.trim(),hero_accent:$('#heroAccent').value.trim(),hero_text:$('#heroText').value.trim(),hero_primary_label:$('#heroPrimaryLabel').value.trim(),hero_secondary_label:$('#heroSecondaryLabel').value.trim(),about_title:$('#aboutTitle').value.trim(),about_text:$('#aboutText').value.trim(),whatsapp:$('#whatsapp').value.trim(),phone:$('#phone').value.trim(),email:$('#contactEmail').value.trim(),address:$('#address').value.trim(),hero_image_url:heroUrl,about_image_url:aboutUrl,logo_image_url:logoUrl||aboutUrl,loader_logo_url:loaderLogoUrl,developer_photo_url:devPhotoUrl,updated_at:new Date().toISOString()};
   if(LOCAL_MODE){localWrite(LOCAL_SETTINGS_KEY,row);settings=row;toast('تم حفظ الإعدادات محليًا');return}
   const {error}=await sb.from('site_settings').upsert(row);
   if(error)toast(error.message,true);else{toast('تم حفظ الإعدادات');loadAll()}
