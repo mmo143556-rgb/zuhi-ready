@@ -1,12 +1,14 @@
 const C=window.ZUHI_CONFIG||{};const sb=window.supabase?.createClient(C.SUPABASE_URL||'',C.SUPABASE_ANON_KEY||'');
 let categories=[],products=[],services=[],reviews=[],settings={},currentCountry='all',selectedProduct=null,installPrompt=null,manifestUrl=null;
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[m]));
+const loaderStart=Date.now();
+function hidePageLoader(){const el=$('#pageLoader');if(!el||el.classList.contains('hide'))return;const wait=Math.max(0,450-(Date.now()-loaderStart));setTimeout(()=>el.classList.add('hide'),wait)}
 function toast(m,err){const e=document.createElement('div');e.className='toast'+(err?' error':'');e.textContent=m;$('#toast-container').append(e);setTimeout(()=>e.remove(),2800)}
 const stars=n=>'★★★★★☆☆☆☆☆'.slice(5-n,10-n);
 function localReviews(){try{const saved=JSON.parse(localStorage.getItem('zuhi_local_reviews'));if(Array.isArray(saved)&&saved.length)return saved}catch{}const names=['أحمد خالد','سارة محمد','محمد العتيبي','نورة عبدالله','ريم حسن','عبدالعزيز سالم','جنى محمود','خالد يوسف','ليان سعد','يوسف إبراهيم','هند علي','عمر فهد','ملك سامي','مازن طارق','دعاء أحمد','فيصل ناصر','مريم أشرف','رامي حسن','شهد وليد','تركي منصور'];const messages=['التجربة مرتبة وواضحة والاختيار كان سريعًا.','أعجبني التصميم وسهولة الوصول للمنتج المناسب.','الموقع خفيف على الجوال والتفاصيل مفيدة جدًا.'];return names.flatMap((name,i)=>messages.map((message,j)=>({id:`local-review-${i}-${j}`,name:`${name}${j?' '+(j+1):''}`,message,rating:j===1?4:5,active:true,sort_order:i*3+j+1})))}
 
 async function load(){
-  if(!sb)return toast('أضف config.js أولاً',true);
+  if(!sb){toast('أضف config.js أولاً',true);hidePageLoader();return}
   const [c,p,s,r,st]=await Promise.all([
     sb.from('categories').select('*').eq('active',true).order('sort_order'),
     sb.from('products').select('*').eq('active',true).order('created_at',{ascending:false}),
@@ -14,9 +16,9 @@ async function load(){
     C.LOCAL_ADMIN_MODE?Promise.resolve({data:[]}):sb.from('testimonials').select('*').eq('active',true).order('sort_order'),
     sb.from('site_settings').select('*').eq('id',true).maybeSingle()
   ]);
-  if(c.error||p.error||s.error){console.error(c.error||p.error||s.error);toast('تعذر تحميل البيانات. تأكد من إعداد Supabase.',true);return}
+  if(c.error||p.error||s.error){console.error(c.error||p.error||s.error);toast('تعذر تحميل البيانات. تأكد من إعداد Supabase.',true);hidePageLoader();return}
   categories=c.data||[];products=p.data||[];services=s.data||[];reviews=C.LOCAL_ADMIN_MODE?localReviews():(r.data||[]);settings=C.LOCAL_ADMIN_MODE?(()=>{try{return JSON.parse(localStorage.getItem('zuhi_local_settings'))||st.data||{}}catch{return st.data||{}}})():(st.data||{});
-  applySettings();render()
+  applySettings();render();hidePageLoader()
 }
 
 function applySettings(){
@@ -40,7 +42,7 @@ function applySettings(){
 
 function subscribeRealtime(){if(!sb)return;let channel=sb.channel('zuhi-live').on('postgres_changes',{event:'*',schema:'public',table:'products'},load).on('postgres_changes',{event:'*',schema:'public',table:'categories'},load).on('postgres_changes',{event:'*',schema:'public',table:'services'},load).on('postgres_changes',{event:'*',schema:'public',table:'site_settings'},load);if(!C.LOCAL_ADMIN_MODE)channel=channel.on('postgres_changes',{event:'*',schema:'public',table:'testimonials'},load);channel.subscribe()}
 
-function startWave(){const canvas=$('#waveCanvas'),context=canvas?.getContext('2d');if(!canvas||!context)return;let width=0,height=0,frame=0;const resize=()=>{width=canvas.width=innerWidth*devicePixelRatio;height=canvas.height=innerHeight*devicePixelRatio;canvas.style.width=`${innerWidth}px`;canvas.style.height=`${innerHeight}px`;context.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)};const draw=()=>{const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;context.clearRect(0,0,innerWidth,innerHeight);for(let line=0;line<2;line++){context.beginPath();for(let x=-20;x<=innerWidth+20;x+=12){const y=innerHeight*(.32+line*.16)+Math.sin(x*.008+frame*(line?-.008:.01))*22+Math.sin(x*.018+frame*.004)*8; x===-20?context.moveTo(x,y):context.lineTo(x,y)}context.strokeStyle=line?'rgba(168,255,62,.16)':'rgba(168,255,62,.23)';context.lineWidth=1.5;context.shadowColor='#a8ff3e';context.shadowBlur=5;context.stroke()}context.shadowBlur=0;if(!reduced){frame++;requestAnimationFrame(draw)}};addEventListener('resize',resize);resize();draw()}
+function startWave(){const canvas=$('#waveCanvas'),context=canvas?.getContext('2d');if(!canvas||!context)return;let width=0,height=0,frame=0;const resize=()=>{width=canvas.width=innerWidth*devicePixelRatio;height=canvas.height=innerHeight*devicePixelRatio;canvas.style.width=`${innerWidth}px`;canvas.style.height=`${innerHeight}px`;context.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)};const draw=()=>{const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;context.clearRect(0,0,innerWidth,innerHeight);for(let line=0;line<2;line++){context.beginPath();for(let x=-20;x<=innerWidth+20;x+=12){const y=innerHeight*(.32+line*.16)+Math.sin(x*.008+frame*(line?-.008:.01))*22+Math.sin(x*.018+frame*.004)*8; x===-20?context.moveTo(x,y):context.lineTo(x,y)}context.strokeStyle=line?'rgba(168,255,62,.25)':'rgba(168,255,62,.34)';context.lineWidth=1.7;context.shadowColor='#a8ff3e';context.shadowBlur=7;context.stroke()}context.shadowBlur=0;if(!reduced){frame++;requestAnimationFrame(draw)}};addEventListener('resize',resize);resize();draw()}
 
 function render(){
   const cg=$('#categoryGrid');
@@ -56,7 +58,7 @@ function renderReviews(){
   const reviewTitle=$('#reviewsToggle strong');if(reviewTitle)reviewTitle.textContent=`آراء العملاء${reviews.length?` (${reviews.length})`:''}`;
   $('#emptyReviews').classList.toggle('hidden',reviews.length>0);
   if(!reviews.length)$('#emptyReviews').textContent='لا توجد تقييمات منشورة بعد. شغّل جزء التقييمات من ملف supabase.sql ثم حدّث الصفحة.';
-  $('#reviewsGrid').innerHTML=reviews.map((r,i)=>`<div class="review-card" id="rv${i}"><button class="review-summary" onclick="toggleReview(${i})"><div><strong>${esc(r.name)}</strong><span class="review-stars">${stars(r.rating)}</span></div><span class="review-arrow">‹</span></button><p class="review-text">${esc(r.message)}</p></div>`).join('');
+  $('#reviewsGrid').innerHTML=[...reviews].reverse().map((r,i)=>`<div class="review-card" id="rv${i}"><button class="review-summary" onclick="toggleReview(${i})"><div><strong>${esc(r.name)}</strong><span class="review-stars">${stars(r.rating)}</span></div><span class="review-arrow">‹</span></button><p class="review-text">${esc(r.message)}</p></div>`).join('');
 }
 function toggleReview(i){$('#rv'+i).classList.toggle('open')}
 
@@ -64,15 +66,20 @@ function renderProducts(){
   const q=($('#searchInput')?.value||'').toLowerCase(),f=$('#categoryFilter').value;
   const list=products.filter(p=>(f==='all'||p.category_id===f)&&(currentCountry==='all'||p.country===currentCountry)&&(!q||(`${p.name} ${p.description||''}`).toLowerCase().includes(q)));
   $('#emptyProducts').classList.toggle('hidden',list.length>0);
-  $('#productGrid').innerHTML=list.map(p=>`<article class="product-card reveal"><div class="product-img"><img src="${esc(p.image_url||'')}" alt="${esc(p.name)}" loading="lazy"><span class="badge">${esc(countryFlag(p.country))} ${esc(categories.find(c=>c.id===p.category_id)?.name||'منتج')}</span></div><div class="product-body"><h3>${esc(p.name)}</h3><button class="description-toggle" onclick="showDetails('${p.id}')">الوصف والتفاصيل <span>⌄</span></button>${Number(p.price||0)>0?`<div class="price">${Number(p.price).toLocaleString('ar-SA')} ر.س</div>`:''}<div class="product-actions"><button class="btn primary full" onclick="buy('${p.id}')">شراء الآن ↗</button></div></div></article>`).join('');
+  $('#productGrid').innerHTML=list.map(p=>`<article class="product-card reveal"><div class="product-img"><img src="${esc(p.image_url||'')}" alt="${esc(p.name)}" loading="lazy"><span class="badge">${esc(countryFlag(p.country))} ${esc(categories.find(c=>c.id===p.category_id)?.name||'منتج')}</span></div><div class="product-body"><h3>${esc(p.name)}</h3><button class="description-toggle" onclick="showDetails('${p.id}')">الوصف والتفاصيل <span>⌄</span></button>${Number(p.price||0)>0?`<div class="price">${Number(p.price).toLocaleString('ar-SA')} ${currencyLabel(p.country)}</div>`:''}<div class="product-actions"><button class="btn primary full" onclick="buy('${p.id}')">شراء الآن ↗</button></div></div></article>`).join('');
   observe();
 }
 function countryFlag(c){return c==='مصر'?'🇪🇬':c==='الإمارات'?'🇦🇪':'🇸🇦'}
+function currencyLabel(c){return c==='مصر'?'ج.م':c==='الإمارات'?'د.إ':'ر.س'}
 function filterCat(id){$('#categoryFilter').value=id;renderProducts()}
-function buy(id){const p=products.find(x=>x.id===id);if(!p)return;selectedProduct=p;if(p.affiliate_url){window.open(p.affiliate_url,'_blank','noopener,noreferrer')}else if(p.direct_order){$('#orderTitle').textContent=`طلب ${p.name}`;openModal('orderModal')}else toast('رابط الشراء غير متاح لهذا المنتج',true)}
-function showDetails(id){const p=products.find(x=>x.id===id);if(!p)return;selectedProduct=p;$('#detailImage').src=p.image_url||'assets/brand-board.png';$('#detailImage').alt=p.name;$('#detailTitle').textContent=p.name;$('#detailCountry').textContent=`${countryFlag(p.country)} ${p.country||''}`;$('#detailDescription').textContent=p.description||'لا يوجد وصف لهذا المنتج.';$('#detailPrice').textContent=Number(p.price||0)>0?`${Number(p.price).toLocaleString('ar-SA')} ر.س`:'';openModal('productDetailModal')}
-function openModal(id){const e=$('#'+id);e.classList.remove('hidden');e.setAttribute('aria-hidden','false')}
-function closeModal(id){const e=$('#'+id);e.classList.add('hidden');e.setAttribute('aria-hidden','true')}
+function buy(id){const p=products.find(x=>x.id===id);if(!p)return;selectedProduct=p;if(p.direct_order){$('#orderTitle').textContent=`طلب ${p.name}`;openModal('orderModal')}else if(p.affiliate_url){window.open(p.affiliate_url,'_blank','noopener,noreferrer')}else toast('رابط الشراء غير متاح لهذا المنتج',true)}
+function showDetails(id){const p=products.find(x=>x.id===id);if(!p)return;selectedProduct=p;$('#detailImage').src=p.image_url||'assets/brand-board.png';$('#detailImage').alt=p.name;$('#detailTitle').textContent=p.name;$('#detailCountry').textContent=`${countryFlag(p.country)} ${p.country||''}`;$('#detailDescription').textContent=p.description||'لا يوجد وصف لهذا المنتج.';$('#detailPrice').textContent=Number(p.price||0)>0?`${Number(p.price).toLocaleString('ar-SA')} ${currencyLabel(p.country)}`:'';openModal('productDetailModal')}
+let modalScrollY=0;
+function lockScroll(){modalScrollY=window.scrollY;document.body.style.position='fixed';document.body.style.top=`-${modalScrollY}px`;document.body.style.width='100%'}
+function unlockScroll(){document.body.style.position='';document.body.style.top='';document.body.style.width='';window.scrollTo(0,modalScrollY)}
+function openModal(id){const e=$('#'+id);e.classList.remove('hidden');e.setAttribute('aria-hidden','false');lockScroll();history.pushState({zuhiModal:id},'')}
+function closeModal(id){const e=$('#'+id);e.classList.add('hidden');e.setAttribute('aria-hidden','true');unlockScroll();if(history.state&&history.state.zuhiModal===id)history.back()}
+window.addEventListener('popstate',()=>{const open=document.querySelectorAll('.modal:not(.hidden)');if(open.length){open.forEach(m=>{m.classList.add('hidden');m.setAttribute('aria-hidden','true')});unlockScroll()}});
 function registerShare(name,phone){localStorage.setItem('zuhi_share_user',JSON.stringify({name,phone}));const count=Number(localStorage.getItem('zuhi_share_count')||0)+1;localStorage.setItem('zuhi_share_count',count);return count}
 function observe(){document.querySelectorAll('.reveal:not(.observed)').forEach(e=>{e.classList.add('observed');new IntersectionObserver(es=>es.forEach(x=>x.isIntersecting&&x.target.classList.add('visible')),{threshold:.1}).observe(e)})}
 
@@ -80,6 +87,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.querySelectorAll('.logo-img').forEach(image=>image.src='assets/brand-board.png');
   startWave();
   load();
+  setTimeout(hidePageLoader,4000);
   subscribeRealtime();
   window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;const button=$('#installApp');if(button)button.classList.remove('hidden')});
   window.addEventListener('appinstalled',()=>{$('#installApp')?.classList.add('hidden');installPrompt=null});
@@ -125,4 +133,22 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(error){$('#contactMsg').textContent='تعذر إرسال الرسالة، حاول مرة أخرى.';console.error(error)}
     else{$('#contactMsg').textContent='';e.target.reset();toast('تم إرسال رسالتك، هنرد عليك قريب 🌿')}
   };
+
+  $('#footerContactLink')?.addEventListener('click',()=>{
+    const panel=$('#contactPanel'),toggle=$('#contactToggle');
+    if(panel&&!panel.classList.contains('open')){panel.classList.add('open');toggle?.setAttribute('aria-expanded','true')}
+  });
+
+  setTimeout(()=>{
+    const promo=$('#installPromo');if(!promo)return;
+    const isStandaloneNow=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+    if(isStandaloneNow||sessionStorage.getItem('zuhi_install_promo_shown'))return;
+    sessionStorage.setItem('zuhi_install_promo_shown','1');
+    promo.classList.remove('hidden');
+    const hidePromo=()=>promo.classList.add('hidden');
+    $('#installPromoClose')?.addEventListener('click',hidePromo);
+    $('#installPromoInstall')?.addEventListener('click',()=>{hidePromo();$('#installApp')?.click()});
+    $('#installPromoShare')?.addEventListener('click',()=>{hidePromo();openModal('shareModal')});
+    setTimeout(hidePromo,9000);
+  },2000);
 });
