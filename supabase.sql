@@ -143,6 +143,9 @@ alter table public.site_settings add column if not exists about_title text defau
 alter table public.site_settings add column if not exists about_text text default '';
 alter table public.site_settings add column if not exists loader_logo_url text not null default '';
 alter table public.site_settings add column if not exists developer_photo_url text not null default '';
+alter table public.site_settings add column if not exists wave_color text not null default '#a8ff3e';
+alter table public.site_settings add column if not exists wave_opacity integer not null default 66;
+alter table public.site_settings add column if not exists wave_style text not null default 'wave';
 insert into public.site_settings (id) values (true) on conflict (id) do nothing;
 
 alter table public.testimonials enable row level security;
