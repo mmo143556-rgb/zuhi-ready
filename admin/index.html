@@ -83,9 +83,12 @@
     <input id="loaderLogoUrl" placeholder="أو رابط لوجو شاشة التحميل (يستخدم اللوجو الرئيسي تلقائيًا إذا تُرك فارغًا)">
     <label class="upload">صورة "تم إعداد الموقع بواسطة" في الفوتر<input id="devPhotoFile" type="file" accept="image/*"></label>
     <input id="devPhotoUrl" placeholder="أو رابط الصورة مباشرة">
+    <label class="field-label" for="waveColor">لون خطوط الموجة النيون المتحركة<input id="waveColor" type="color" value="#a8ff3e"></label>
+    <label class="field-label" for="waveOpacity">وضوح خطوط الموجة (١٠ = خفيفة جدًا، ١٠٠ = واضحة تمامًا)<input id="waveOpacity" type="range" min="10" max="100" step="1" value="66"></label>
+    <label class="field-label" for="waveStyle">شكل خطوط الموجة<select id="waveStyle"><option value="wave">موجة ناعمة</option><option value="zigzag">موجة متعرجة</option><option value="dotted">خط منقط متحرك</option></select></label>
     <div class="form-actions"><button class="btn primary">حفظ الإعدادات</button></div>
   </form>
   <div class="security-note">تعديلات لوحة الإدارة تُحفظ في Supabase وتظهر للزوار والتطبيق بعد تحديث البيانات. الدخول محمي عبر Supabase Auth وصلاحيات RLS. استخدم المفتاح العام فقط، ولا تضع service_role key في الموقع.</div>
 </div>
 
-</section></div><div id="toast-container"></div><script src="../js/admin.js?v=admin-product-v3"></script></body></html>
+</section></div><div id="toast-container"></div><script src="../js/admin.js?v=admin-product-v4"></script></body></html>
