@@ -102,3 +102,8 @@ main,footer,.site-header{position:relative;z-index:2}
 .dev-credit-popup span{font-family:Cairo;font-size:.85rem;color:var(--ink);line-height:1.6}
 .dev-credit-popup b{color:var(--brand)}
 @keyframes devCreditIn{from{opacity:0;transform:translate(-50%,-50%) scale(.9)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+/* --- addition: wave lines opacity now fully controlled from Admin settings, not CSS --- */
+.wave-canvas{opacity:1}
+/* --- addition: small polish for the new wave-style admin controls --- */
+.field-label input[type="color"]{width:100%;height:40px;padding:3px;border:1px solid #dce4de;border-radius:11px;background:#fff;cursor:pointer}
+.field-label input[type="range"]{width:100%;margin-top:6px}
