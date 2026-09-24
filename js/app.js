@@ -1,5 +1,5 @@
 const C=window.ZUHI_CONFIG||{};const sb=window.supabase?.createClient(C.SUPABASE_URL||'',C.SUPABASE_ANON_KEY||'');
-let categories=[],products=[],services=[],reviews=[],settings={},currentCountry='all',selectedProduct=null,installPrompt=null,manifestUrl=null;
+let categories=[],products=[],services=[],reviews=[],settings={},currentCountry='all',selectedProduct=null,installPrompt=null,manifestUrl=null,detailImages=[],detailIndex=0;
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[m]));
 const loaderStart=Date.now();
 function hidePageLoader(){const el=$('#pageLoader');if(!el||el.classList.contains('hide'))return;const wait=Math.max(0,450-(Date.now()-loaderStart));setTimeout(()=>el.classList.add('hide'),wait)}
@@ -73,14 +73,16 @@ function renderProducts(){
   const q=($('#searchInput')?.value||'').toLowerCase(),f=$('#categoryFilter').value;
   const list=products.filter(p=>(f==='all'||p.category_id===f)&&(currentCountry==='all'||p.country===currentCountry)&&(!q||(`${p.name} ${p.description||''}`).toLowerCase().includes(q)));
   $('#emptyProducts').classList.toggle('hidden',list.length>0);
-  $('#productGrid').innerHTML=list.map(p=>`<article class="product-card reveal"><div class="product-img"><img src="${esc(p.image_url||'')}" alt="${esc(p.name)}" loading="lazy"><span class="badge">${esc(countryFlag(p.country))} ${esc(categories.find(c=>c.id===p.category_id)?.name||'منتج')}</span></div><div class="product-body"><h3>${esc(p.name)}</h3><button class="description-toggle" onclick="showDetails('${p.id}')">الوصف والتفاصيل <span>⌄</span></button>${Number(p.price||0)>0?`<div class="price">${Number(p.price).toLocaleString('ar-SA')} ${currencyLabel(p.country)}</div>`:''}<div class="product-actions"><button class="btn primary full" onclick="buy('${p.id}')">شراء الآن ↗</button></div></div></article>`).join('');
+  $('#productGrid').innerHTML=list.map(p=>`<article class="product-card reveal"><div class="product-img"><img src="${esc(p.image_url||(Array.isArray(p.images)&&p.images[0])||'')}" alt="${esc(p.name)}" loading="lazy"><span class="badge">${esc(countryFlag(p.country))} ${esc(categories.find(c=>c.id===p.category_id)?.name||'منتج')}</span>${Array.isArray(p.images)&&p.images.length>1?`<span class="badge images-badge">📷 ${p.images.length}</span>`:''}</div><div class="product-body"><h3>${esc(p.name)}</h3><button class="description-toggle" onclick="showDetails('${p.id}')">الوصف والتفاصيل <span>⌄</span></button>${Number(p.price||0)>0?`<div class="price">${Number(p.price).toLocaleString('ar-SA')} ${currencyLabel(p.country)}</div>`:''}<div class="product-actions"><button class="btn primary full" onclick="buy('${p.id}')">شراء الآن ↗</button></div></div></article>`).join('');
   observe();
 }
 function countryFlag(c){return c==='مصر'?'🇪🇬':c==='الإمارات'?'🇦🇪':'🇸🇦'}
 function currencyLabel(c){return c==='مصر'?'ج.م':c==='الإمارات'?'د.إ':'ر.س'}
 function filterCat(id){$('#categoryFilter').value=id;renderProducts()}
 function buy(id){const p=products.find(x=>x.id===id);if(!p)return;selectedProduct=p;if(p.direct_order){$('#orderTitle').textContent=`طلب ${p.name}`;openModal('orderModal')}else if(p.affiliate_url){window.open(p.affiliate_url,'_blank','noopener,noreferrer')}else toast('رابط الشراء غير متاح لهذا المنتج',true)}
-function showDetails(id){const p=products.find(x=>x.id===id);if(!p)return;selectedProduct=p;$('#detailImage').src=p.image_url||'assets/brand-board.png';$('#detailImage').alt=p.name;$('#detailTitle').textContent=p.name;$('#detailCountry').textContent=`${countryFlag(p.country)} ${p.country||''}`;$('#detailDescription').textContent=p.description||'لا يوجد وصف لهذا المنتج.';$('#detailPrice').textContent=Number(p.price||0)>0?`${Number(p.price).toLocaleString('ar-SA')} ${currencyLabel(p.country)}`:'';openModal('productDetailModal')}
+function showDetails(id){const p=products.find(x=>x.id===id);if(!p)return;selectedProduct=p;detailImages=(Array.isArray(p.images)&&p.images.length)?p.images:(p.image_url?[p.image_url]:['assets/brand-board.png']);detailIndex=0;renderDetailImage();$('#detailTitle').textContent=p.name;$('#detailCountry').textContent=`${countryFlag(p.country)} ${p.country||''}`;$('#detailDescription').textContent=p.description||'لا يوجد وصف لهذا المنتج.';$('#detailPrice').textContent=Number(p.price||0)>0?`${Number(p.price).toLocaleString('ar-SA')} ${currencyLabel(p.country)}`:'';openModal('productDetailModal')}
+function renderDetailImage(){const img=$('#detailImage');if(!img)return;img.src=detailImages[detailIndex]||'assets/brand-board.png';img.alt=selectedProduct?.name||'';const multi=detailImages.length>1;$('#detailPrev')?.classList.toggle('hidden',!multi);$('#detailNext')?.classList.toggle('hidden',!multi);const dots=$('#detailDots');if(dots)dots.innerHTML=multi?detailImages.map((_,i)=>`<span class="detail-dot${i===detailIndex?' active':''}"></span>`).join(''):''}
+function detailNav(dir){if(detailImages.length<2)return;detailIndex=(detailIndex+dir+detailImages.length)%detailImages.length;renderDetailImage()}
 let modalScrollY=0;
 function lockScroll(){modalScrollY=window.scrollY;document.body.style.position='fixed';document.body.style.top=`-${modalScrollY}px`;document.body.style.width='100%'}
 function unlockScroll(){document.body.style.position='';document.body.style.top='';document.body.style.width='';window.scrollTo(0,modalScrollY)}
@@ -126,6 +128,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.querySelectorAll('[data-close-product]').forEach(e=>e.onclick=()=>closeModal('productDetailModal'));
   document.querySelectorAll('[data-close-review]').forEach(e=>e.onclick=()=>closeModal('reviewModal'));
   document.querySelectorAll('[data-close-share]').forEach(e=>e.onclick=()=>closeModal('shareModal'));
+  document.querySelectorAll('[data-close-merchant]').forEach(e=>e.onclick=()=>closeModal('merchantModal'));
+  $('#detailPrev')?.addEventListener('click',()=>detailNav(-1));
+  $('#detailNext')?.addEventListener('click',()=>detailNav(1));
   const shareData=()=>({title:document.title,text:'اكتشف زُهي',url:location.href.split('#')[0]});
   $('#shareBtn').onclick=()=>openModal('shareModal');
   $('#nativeShareAction').onclick=async()=>{try{if(navigator.share)await navigator.share(shareData());else{await navigator.clipboard.writeText(shareData().url);toast('تم نسخ رابط زُهي للمشاركة')}closeModal('shareModal')}catch(error){if(error.name!=='AbortError')toast('تعذر تجهيز رابط المشاركة',true)}};
@@ -146,14 +151,52 @@ document.addEventListener('DOMContentLoaded',()=>{
   const ct=$('#contactToggle'),cp=$('#contactPanel');
   ct.onclick=()=>{const open=cp.classList.toggle('open');ct.setAttribute('aria-expanded',open)};
 
+  $('#cfAttachBtn')?.addEventListener('click',()=>$('#cfAttachFile').click());
+  $('#cfAttachFile')?.addEventListener('change',()=>{
+    const f=$('#cfAttachFile').files[0],prev=$('#cfAttachPreview');if(!prev)return;
+    if(!f){prev.classList.add('hidden');prev.innerHTML='';return}
+    prev.classList.remove('hidden');
+    prev.innerHTML=`<img src="${URL.createObjectURL(f)}" alt=""><span>${esc(f.name)}</span><button type="button" id="cfAttachRemove">إزالة</button>`;
+    $('#cfAttachRemove').onclick=()=>{$('#cfAttachFile').value='';prev.classList.add('hidden');prev.innerHTML=''};
+  });
   $('#contactForm').onsubmit=async e=>{
     e.preventDefault();
-    const row={name:$('#cfName').value.trim(),email:$('#cfEmail').value.trim(),message:$('#cfMessage').value.trim()};
     if(!sb){$('#contactMsg').textContent='الموقع غير متصل بقاعدة البيانات بعد.';return}
+    let attachment_url='';
+    const file=$('#cfAttachFile').files[0];
+    if(file){
+      try{
+        const ext=file.name.split('.').pop().toLowerCase(),path=`${crypto.randomUUID()}.${ext}`;
+        const up=await sb.storage.from('message-attachments').upload(path,file,{upsert:false});
+        if(!up.error)attachment_url=sb.storage.from('message-attachments').getPublicUrl(path).data.publicUrl;
+      }catch(err){console.error(err)}
+    }
+    const row={name:$('#cfName').value.trim(),email:$('#cfEmail').value.trim(),message:$('#cfMessage').value.trim(),attachment_url};
     const {error}=await sb.from('messages').insert(row);
     if(error){$('#contactMsg').textContent='تعذر إرسال الرسالة، حاول مرة أخرى.';console.error(error)}
-    else{$('#contactMsg').textContent='';e.target.reset();toast('تم إرسال رسالتك، هنرد عليك قريب 🌿')}
+    else{$('#contactMsg').textContent='';e.target.reset();$('#cfAttachPreview')?.classList.add('hidden');if($('#cfAttachPreview'))$('#cfAttachPreview').innerHTML='';toast('تم إرسال رسالتك، هنرد عليك قريب 🌿')}
   };
+
+  $('#merchantCtaBtn')?.addEventListener('click',()=>openModal('merchantModal'));
+  $('#merchantForm')?.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const msg=$('#merchantMsg');
+    if(!settings.whatsapp){if(msg)msg.textContent='رقم واتساب المتجر غير مضاف من الإعدادات بعد.';return}
+    const title=$('#mrTitle').value.trim(),details=$('#mrDetails').value.trim(),phone=$('#mrPhone').value.trim(),email=$('#mrEmail').value.trim(),pname=$('#mrProductName').value.trim(),price=$('#mrProductPrice').value.trim();
+    let imageUrl='';
+    const file=$('#mrProductImage').files[0];
+    if(file&&sb){
+      try{
+        const ext=file.name.split('.').pop().toLowerCase(),path=`${crypto.randomUUID()}.${ext}`;
+        const up=await sb.storage.from('merchant-images').upload(path,file,{upsert:false});
+        if(!up.error)imageUrl=sb.storage.from('merchant-images').getPublicUrl(path).data.publicUrl;
+      }catch(err){console.error(err)}
+    }
+    const lines=['طلب تاجر جديد مع زُهي',`العنوان: ${title}`,details?`محتويات القائمة: ${details}`:'',`الهاتف: ${phone}`,email?`البريد الإلكتروني: ${email}`:'',`اسم المنتج: ${pname}`,price?`سعر المنتج: ${price}`:'',imageUrl?`صورة المنتج: ${imageUrl}`:''].filter(Boolean);
+    const text=encodeURIComponent(lines.join('\n')),waPhone=settings.whatsapp.replace(/[^0-9]/g,'');
+    window.open(`https://wa.me/${waPhone}?text=${text}`,'_blank','noopener,noreferrer');
+    closeModal('merchantModal');e.target.reset();
+  });
 
   $('#footerContactLink')?.addEventListener('click',()=>{
     const panel=$('#contactPanel'),toggle=$('#contactToggle');
@@ -180,4 +223,32 @@ document.addEventListener('DOMContentLoaded',()=>{
     $('#installPromoShare')?.addEventListener('click',()=>{hidePromo();openModal('shareModal')});
     setTimeout(hidePromo,9000);
   },2000);
+
+  setTimeout(()=>{
+    const promo=$('#referralPromo');if(!promo)return;
+    if(sessionStorage.getItem('zuhi_referral_promo_shown'))return;
+    sessionStorage.setItem('zuhi_referral_promo_shown','1');
+    if(document.querySelectorAll('.modal:not(.hidden)').length)return;
+    promo.classList.remove('hidden');
+    const hidePromo=()=>promo.classList.add('hidden');
+    $('#referralPromoClose')?.addEventListener('click',hidePromo);
+    $('#referralPromoShare')?.addEventListener('click',()=>{hidePromo();openModal('shareModal')});
+    setTimeout(hidePromo,10000);
+  },13000);
+
+  setTimeout(()=>{
+    const promo=$('#dealsPromo');if(!promo)return;
+    if(sessionStorage.getItem('zuhi_deals_promo_shown'))return;
+    sessionStorage.setItem('zuhi_deals_promo_shown','1');
+    if(document.querySelectorAll('.modal:not(.hidden)').length)return;
+    promo.classList.remove('hidden');
+    const hideDeals=()=>promo.classList.add('hidden');
+    $('#dealsPromoClose')?.addEventListener('click',e=>{e.stopPropagation();hideDeals()});
+    promo.addEventListener('click',e=>{
+      if(e.target.closest('#dealsPromoClose'))return;
+      hideDeals();
+      document.getElementById('services')?.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+    setTimeout(hideDeals,12000);
+  },30000);
 });

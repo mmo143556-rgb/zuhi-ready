@@ -1,6 +1,6 @@
 const C=window.ZUHI_CONFIG||{};const sb=window.supabase?.createClient(C.SUPABASE_URL||'',C.SUPABASE_ANON_KEY||'');document.querySelectorAll('.logo-img').forEach(image=>image.src='../assets/brand-board.png');
 const LOCAL_MODE=C.LOCAL_ADMIN_MODE===true,LOCAL_PASSWORD=C.LOCAL_ADMIN_PASSWORD||'123456',LOCAL_REVIEWS_KEY='zuhi_local_reviews',LOCAL_SETTINGS_KEY='zuhi_local_settings';
-let cats=[],prods=[],svcs=[],revs=[],msgs=[],settings={};
+let cats=[],prods=[],svcs=[],revs=[],msgs=[],settings={},editingImages=[];
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[m]));
 function toast(m,err){const e=document.createElement('div');e.className='toast'+(err?' error':'');e.textContent=m;$('#toast-container').append(e);setTimeout(()=>e.remove(),2800)}
 function localRead(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}}
@@ -59,20 +59,22 @@ function fillSettingsForm(){
 }
 
 function renderLists(){
-  $('#productsList').innerHTML=prods.map(p=>`<div class="admin-row"><img src="${esc(p.image_url||'')}" alt=""><div><b>${esc(p.name)}</b><small> — ${esc(p.country||'')} — ${p.active?'ظاهر':'مخفي'}</small></div><div class="admin-row-actions"><button class="edit-btn" onclick="editP('${p.id}')">تعديل</button><button class="delete-btn" onclick="delP('${p.id}')">حذف</button></div></div>`).join('');
+  $('#productsList').innerHTML=prods.map(p=>{const n=Array.isArray(p.images)?p.images.length:(p.image_url?1:0);return `<div class="admin-row"><img src="${esc(p.image_url||(Array.isArray(p.images)&&p.images[0])||'')}" alt=""><div><b>${esc(p.name)}</b><small> — ${esc(p.country||'')} — ${p.active?'ظاهر':'مخفي'} — ${n>1?`${n} صور`:'صورة واحدة'}</small></div><div class="admin-row-actions"><button class="edit-btn" onclick="editP('${p.id}')">تعديل</button><button class="delete-btn" onclick="delP('${p.id}')">حذف</button></div></div>`}).join('');
   $('#categoriesList').innerHTML=cats.map(c=>`<div class="admin-row"><div class="service-icon">${esc(c.icon||'✦')}</div><div><b>${esc(c.name)}</b></div><div class="admin-row-actions"><button class="edit-btn" onclick="editC('${c.id}')">تعديل</button><button class="delete-btn" onclick="delC('${c.id}')">حذف</button></div></div>`).join('');
   $('#servicesList').innerHTML=svcs.map(s=>`<div class="admin-row"><div class="service-icon">${esc(s.icon||'✦')}</div><div><b>${esc(s.name)}</b><small> — ${esc(s.description||'')}</small></div><div class="admin-row-actions"><button class="edit-btn" onclick="editS('${s.id}')">تعديل</button><button class="delete-btn" onclick="delS('${s.id}')">حذف</button></div></div>`).join('');
   $('#reviewsList').innerHTML=revs.map(r=>`<div class="admin-row"><div class="service-icon">${'★'.repeat(r.rating)}</div><div><b>${esc(r.name)}</b><small> — ${esc(r.message).slice(0,60)}${r.active?'':' (مخفي)'}</small></div><div class="admin-row-actions"><button class="edit-btn" onclick="editR('${r.id}')">تعديل</button><button class="delete-btn" onclick="delR('${r.id}')">حذف</button></div></div>`).join('');
   const unread=msgs.filter(m=>!m.is_read).length;
   $('#unreadBadge').classList.toggle('hidden',unread===0);$('#unreadBadge').textContent=unread;
-  $('#messagesList').innerHTML=msgs.map(m=>`<div class="admin-row message-row ${m.is_read?'':'unread'}"><div class="service-icon">✉️</div><div><b>${esc(m.name)}</b> <small>${esc(m.email)}</small><p class="msg-body">${esc(m.message)}</p><small>${new Date(m.created_at).toLocaleString('ar-EG')}</small></div><div class="admin-row-actions">${m.is_read?'':`<button class="edit-btn" onclick="markRead('${m.id}')">قراءة</button>`}<button class="delete-btn" onclick="delMsg('${m.id}')">حذف</button></div></div>`).join('')||'<p class="empty">لا توجد رسائل بعد.</p>';
+  $('#messagesList').innerHTML=msgs.map(m=>`<div class="admin-row message-row ${m.is_read?'':'unread'}"><div class="service-icon">✉️</div><div><b>${esc(m.name)}</b> <small>${esc(m.email)}</small><p class="msg-body">${esc(m.message)}</p>${m.attachment_url?`<a href="${esc(m.attachment_url)}" target="_blank" rel="noopener" class="msg-attachment"><img src="${esc(m.attachment_url)}" alt="مرفق"></a>`:''}<small>${new Date(m.created_at).toLocaleString('ar-EG')}</small></div><div class="admin-row-actions">${m.is_read?'':`<button class="edit-btn" onclick="markRead('${m.id}')">قراءة</button>`}<button class="delete-btn" onclick="delMsg('${m.id}')">حذف</button></div></div>`).join('')||'<p class="empty">لا توجد رسائل بعد.</p>';
 }
 
 async function uploadTo(bucket,file){if(!file)return null;const ext=file.name.split('.').pop().toLowerCase();const path=`${crypto.randomUUID()}.${ext}`;const {error}=await sb.storage.from(bucket).upload(path,file,{upsert:false});if(error){toast(error.message,true);return null}return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl}
 const uploadImage=file=>uploadTo('product-images',file);
 
 // products
-function editP(id){const p=prods.find(x=>x.id===id);$('#productId').value=p.id;$('#pName').value=p.name;$('#pCategory').value=p.category_id;$('#pCountry').value=p.country||'السعودية';$('#pPrice').value=p.price||'';$('#pImage').value=p.image_url||'';$('#pAffiliate').value=p.affiliate_url;$('#pDescription').value=p.description||'';$('#pActive').checked=p.active;$('#pDirectOrder').checked=Boolean(p.direct_order)}
+function renderImagesPreview(){const host=$('#pImagesPreview');if(!host)return;host.innerHTML=editingImages.map((url,i)=>`<div class="admin-image-chip"><img src="${esc(url)}" alt=""><button type="button" onclick="removeImageAt(${i})" aria-label="حذف الصورة">×</button></div>`).join('')}
+function removeImageAt(i){editingImages.splice(i,1);renderImagesPreview()}
+function editP(id){const p=prods.find(x=>x.id===id);$('#productId').value=p.id;$('#pName').value=p.name;$('#pCategory').value=p.category_id;$('#pCountry').value=p.country||'السعودية';$('#pPrice').value=p.price||'';$('#pImage').value='';$('#pAffiliate').value=p.affiliate_url;$('#pDescription').value=p.description||'';$('#pActive').checked=p.active;$('#pDirectOrder').checked=Boolean(p.direct_order);editingImages=(Array.isArray(p.images)&&p.images.length)?[...p.images]:(p.image_url?[p.image_url]:[]);renderImagesPreview()}
 async function delP(id){if(!confirm('حذف المنتج؟'))return;const {error}=await sb.from('products').delete().eq('id',id);if(error)toast(error.message,true);else{toast('تم الحذف');loadAll()}}
 
 // categories
@@ -95,8 +97,23 @@ $('#loginForm').onsubmit=async e=>{e.preventDefault();if(LOCAL_MODE){if($('#pass
 $('#resetPassword').onclick=async()=>{const email=$('#email').value.trim();if(!email)return $('#loginMsg').textContent='اكتب البريد الإلكتروني أولًا';const options=location.protocol==='http:'||location.protocol==='https:'?{redirectTo:location.href}:undefined;const {error}=options?await sb.auth.resetPasswordForEmail(email,options):await sb.auth.resetPasswordForEmail(email);$('#loginMsg').textContent=error?(error.message.includes('rate limit')?'تم تجاوز حد رسائل البريد. انتظر قليلًا ثم أعد المحاولة أو غيّر كلمة السر من Supabase Dashboard.':error.message):'تم إرسال رابط تغيير كلمة السر إلى بريدك.'};
 $('#logoutBtn').onclick=()=>{if(LOCAL_MODE){localStorage.removeItem('zuhi_local_admin');showLogin()}else sb.auth.signOut()};
 
-$('#productForm').onsubmit=async e=>{e.preventDefault();const id=$('#productId').value;let image=$('#pImage').value.trim();const file=$('#pFile').files[0];if(file)image=await uploadImage(file);if(!image)return toast('أضف صورة أو رابط صورة',true);const direct=$('#pDirectOrder').checked,affiliate=$('#pAffiliate').value.trim();if(!direct&&!affiliate)return toast('أضف رابط الشراء أو فعّل الطلب عبر واتساب',true);const row={name:$('#pName').value.trim(),category_id:$('#pCategory').value,country:$('#pCountry').value,price:Number($('#pPrice').value)||0,image_url:image,affiliate_url:affiliate,description:$('#pDescription').value.trim(),active:$('#pActive').checked,direct_order:direct};let r=id?await sb.from('products').update(row).eq('id',id):await sb.from('products').insert(row);if(r.error)toast(r.error.message,true);else{toast('تم حفظ المنتج');e.target.reset();$('#productId').value='';$('#pActive').checked=true;$('#pDirectOrder').checked=false;loadAll()}};
-$('#resetProduct').onclick=()=>{$('#productForm').reset();$('#productId').value='';$('#pActive').checked=true;$('#pDirectOrder').checked=false};
+$('#productForm').onsubmit=async e=>{
+  e.preventDefault();
+  const id=$('#productId').value;
+  const files=[...($('#pFile').files||[])];
+  const uploaded=[];
+  for(const file of files){const u=await uploadImage(file);if(u)uploaded.push(u)}
+  const manualUrls=$('#pImage').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const images=[...editingImages,...uploaded,...manualUrls];
+  if(!images.length)return toast('أضف صورة واحدة على الأقل',true);
+  const image=images[0];
+  const direct=$('#pDirectOrder').checked,affiliate=$('#pAffiliate').value.trim();
+  if(!direct&&!affiliate)return toast('أضف رابط الشراء أو فعّل الطلب عبر واتساب',true);
+  const row={name:$('#pName').value.trim(),category_id:$('#pCategory').value,country:$('#pCountry').value,price:Number($('#pPrice').value)||0,image_url:image,images,affiliate_url:affiliate,description:$('#pDescription').value.trim(),active:$('#pActive').checked,direct_order:direct};
+  let r=id?await sb.from('products').update(row).eq('id',id):await sb.from('products').insert(row);
+  if(r.error)toast(r.error.message,true);else{toast('تم حفظ المنتج');e.target.reset();$('#productId').value='';$('#pActive').checked=true;$('#pDirectOrder').checked=false;editingImages=[];renderImagesPreview();loadAll()}
+};
+$('#resetProduct').onclick=()=>{$('#productForm').reset();$('#productId').value='';$('#pActive').checked=true;$('#pDirectOrder').checked=false;editingImages=[];renderImagesPreview()};
 
 $('#categoryForm').onsubmit=async e=>{e.preventDefault();const id=$('#categoryId').value,row={name:$('#cName').value,icon:$('#cIcon').value||'✦'};const r=id?await sb.from('categories').update(row).eq('id',id):await sb.from('categories').insert(row);if(r.error)toast(r.error.message,true);else{toast('تم حفظ القسم');e.target.reset();$('#categoryId').value='';loadAll()}};
 
