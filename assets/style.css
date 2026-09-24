@@ -190,3 +190,25 @@ img,svg{max-width:100%}
 @media(max-width:400px){.nav-wrap{flex-wrap:wrap}}
 @media(max-width:360px){.brand small{display:none}.nav-actions{gap:5px}}
 @media(max-width:760px){.footer-grid{gap:18px}}
+/* --- additions: fixes bundle 7 (no removals) --- */
+/* 1) reviews: the box holding the messages was capped too small, so long or
+   later reviews were clipped off / hidden instead of showing fully. Let it
+   grow to fit all 50 reviews and any opened message, on every screen size. */
+#reviewsGrid{max-height:none!important;overflow:visible!important;padding-inline-end:0}
+.reviews-section .section-panel.open{max-height:26000px!important}
+.review-card.open{padding-bottom:18px}
+.review-text{line-height:1.8}
+/* when a review is opened, bring its full text into view instead of leaving
+   it below the fold */
+/* 2) navbar: keep search + share visible and usable at every screen width
+   (they used to disappear completely on small phones) and place them right
+   next to the logo, with the main menu links taking the rest of the row, so
+   the header stays readable and responsive at any size. */
+.nav-actions .icon-btn{display:inline-flex!important;align-items:center;justify-content:center}
+.nav-wrap>.mobile-menu-btn{order:1}
+.nav-wrap>.brand{order:2;flex-shrink:0}
+.nav-wrap>.nav-actions{order:3;flex-shrink:0;margin-inline-start:2px}
+.site-header nav{order:4}
+@media(max-width:760px){.nav-wrap{gap:12px}}
+@media(max-width:480px){.nav-wrap{gap:10px}.nav-actions{gap:9px}}
+@media(max-width:360px){.nav-actions{gap:8px}}
