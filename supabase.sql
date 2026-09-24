@@ -146,6 +146,10 @@ alter table public.site_settings add column if not exists developer_photo_url te
 alter table public.site_settings add column if not exists wave_color text not null default '#a8ff3e';
 alter table public.site_settings add column if not exists wave_opacity integer not null default 66;
 alter table public.site_settings add column if not exists wave_style text not null default 'wave';
+-- Per-country storefront visibility, controlled from the admin Settings tab
+alter table public.site_settings add column if not exists country_visible_egypt boolean not null default true;
+alter table public.site_settings add column if not exists country_visible_uae boolean not null default true;
+alter table public.site_settings add column if not exists country_visible_saudi boolean not null default true;
 insert into public.site_settings (id) values (true) on conflict (id) do nothing;
 
 alter table public.testimonials enable row level security;
