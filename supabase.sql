@@ -215,3 +215,30 @@ do $$ begin
   alter publication supabase_realtime add table public.site_settings;
 exception when duplicate_object then null;
 end $$;
+
+-- ==========================================================
+-- Additions: multiple product images, contact attachments, merchant ("تاجر مع زُهي") images
+-- ==========================================================
+
+-- Every product can now carry a gallery of images (image_url stays as the cover/first image
+-- for backward compatibility with anything still reading it directly).
+alter table public.products add column if not exists images jsonb not null default '[]'::jsonb;
+
+-- Contact messages can now include an optional attached image.
+alter table public.messages add column if not exists attachment_url text default '';
+
+-- Storage bucket for images attached to "تواصل معنا" contact messages.
+insert into storage.buckets (id,name,public) values ('message-attachments','message-attachments',true) on conflict (id) do nothing;
+drop policy if exists "public read message attachments" on storage.objects;
+create policy "public read message attachments" on storage.objects for select using (bucket_id='message-attachments');
+drop policy if exists "anyone upload message attachments" on storage.objects;
+create policy "anyone upload message attachments" on storage.objects for insert with check (bucket_id='message-attachments');
+
+-- Storage bucket for the product photo attached from the "تاجر مع زُهي" (merchant) form.
+-- The form sends everything straight to WhatsApp (no database table), so only public
+-- upload/read access is needed here to generate a shareable link for the photo.
+insert into storage.buckets (id,name,public) values ('merchant-images','merchant-images',true) on conflict (id) do nothing;
+drop policy if exists "public read merchant images" on storage.objects;
+create policy "public read merchant images" on storage.objects for select using (bucket_id='merchant-images');
+drop policy if exists "anyone upload merchant images" on storage.objects;
+create policy "anyone upload merchant images" on storage.objects for insert with check (bucket_id='merchant-images');
