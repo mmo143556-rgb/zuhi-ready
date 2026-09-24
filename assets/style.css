@@ -107,3 +107,86 @@ main,footer,.site-header{position:relative;z-index:2}
 /* --- addition: small polish for the new wave-style admin controls --- */
 .field-label input[type="color"]{width:100%;height:40px;padding:3px;border:1px solid #dce4de;border-radius:11px;background:#fff;cursor:pointer}
 .field-label input[type="range"]{width:100%;margin-top:6px}
+/* --- additions: fixes bundle 5 (no removals) --- */
+/* 1) product gallery arrows in the detail modal */
+.detail-image-wrap{position:relative}
+.detail-nav{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;border:0;background:rgba(15,81,50,.82);color:#fff;font-size:1.35rem;line-height:1;display:grid;place-items:center;cursor:pointer;z-index:2;transition:.25s background,.25s transform}
+.detail-nav:hover{background:var(--brand);transform:translateY(-50%) scale(1.06)}
+.detail-nav.hidden{display:none}
+.detail-prev{right:10px}
+.detail-next{left:10px}
+.detail-dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:2}
+.detail-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.6);box-shadow:0 0 3px rgba(0,0,0,.35)}
+.detail-dot.active{background:var(--neon);box-shadow:0 0 6px var(--neon)}
+.images-badge{top:auto;bottom:12px;right:12px;background:rgba(15,81,50,.82)}
+/* admin: multi-image chips preview */
+.admin-images-preview{display:flex;flex-wrap:wrap;gap:8px;grid-column:1/-1}
+.admin-image-chip{position:relative;width:64px;height:64px}
+.admin-image-chip img{width:100%;height:100%;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.admin-image-chip button{position:absolute;top:-6px;left:-6px;width:20px;height:20px;border-radius:50%;background:#9b2c2c;color:#fff;border:0;font-size:.7rem;line-height:1;cursor:pointer;padding:0}
+/* 2) customer reviews: stop the open card's text from sitting under the next card */
+.reviews-grid{align-items:start}
+.review-card.open{grid-column:1/-1}
+.review-text{word-break:break-word;white-space:pre-line}
+/* 3) header: shrink on phone screens so it doesn't stay tall */
+@media(max-width:760px){
+  .nav-wrap{min-height:58px;gap:10px}
+  .brand{padding:5px 8px}
+  .brand small{font-size:.55rem}
+  .logo-img{width:34px;height:34px}
+  .icon-btn{font-size:1.25rem}
+  .share-btn{font-size:1.05rem!important}
+  .mobile-menu-btn{font-size:1.3rem}
+  .header-subbar{padding:4px 0}
+  .merchant-cta{padding:5px 11px;font-size:.74rem}
+}
+@media(max-width:480px){
+  .nav-wrap{min-height:52px;gap:7px}
+  .brand{padding:4px 7px}
+  .logo-img{width:29px;height:29px}
+  .icon-btn{font-size:1.1rem}
+}
+/* 4) share/coupon popup shown 13s after arriving on the site */
+.referral-promo{padding-right:16px}
+/* 5) contact form "+" attach-image button */
+.contact-message-wrap{position:relative}
+.contact-message-wrap textarea{padding-left:46px}
+.contact-attach-btn{position:absolute;left:8px;bottom:8px;width:32px;height:32px;border-radius:50%;border:0;background:var(--brand);color:#fff;font-size:1.1rem;line-height:1;display:grid;place-items:center;cursor:pointer}
+.contact-attach-btn:hover{background:var(--neon);color:#102b18}
+.contact-attach-preview{display:flex;align-items:center;gap:8px;font-size:.82rem;color:#3c463f;background:#f5f8f4;border:1px solid var(--line);border-radius:10px;padding:6px 10px}
+.contact-attach-preview img{width:40px;height:40px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.contact-attach-preview button{border:0;background:none;color:#9b2c2c;cursor:pointer;font-size:.82rem;margin-right:auto;padding:0}
+/* 6) header "تاجر مع زُهي" merchant CTA strip + admin messages attachment thumb */
+.header-subbar{display:flex;justify-content:flex-end;padding:6px 0}
+.merchant-cta{border:1px solid var(--brand);background:#f0f7ef;color:var(--brand);border-radius:20px;padding:6px 14px;font-weight:800;font-size:.8rem;display:inline-flex;align-items:center;gap:6px;border-style:solid}
+.merchant-cta:hover{background:var(--brand);color:#fff}
+@media(max-width:480px){.header-subbar{justify-content:center}}
+.msg-attachment{display:inline-block;margin-top:6px}
+.msg-attachment img{width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+/* --- additions: fixes bundle 6 (no removals) --- */
+/* 1) reviews: force a single column list at every screen size so an open review
+   can never sit next to (and overlap) another review's text again */
+.reviews-grid,.reviews-grid.reviews-grid{grid-template-columns:1fr!important}
+.review-card{min-height:0}
+/* 2) merchant CTA moved from header into the footer "روابط" column */
+.footer-link-btn{display:block;margin:8px 0;color:#dfeae3;background:none;border:0;font:inherit;text-align:right;cursor:pointer;padding:0;width:100%}
+.footer-link-btn:hover{color:var(--neon)}
+/* 3) services: small red frame + green neon glow + gentle floating motion, always on */
+.service-card{border:2px solid #e5484d;box-shadow:0 0 16px rgba(168,255,62,.4);animation:serviceFloat 4.4s ease-in-out infinite;will-change:transform}
+.service-card:nth-child(2n){animation-delay:-1.1s}
+.service-card:nth-child(3n){animation-delay:-2.3s}
+.service-card:nth-child(4n){animation-delay:-3.2s}
+.service-card:hover{border-color:#e5484d;box-shadow:0 0 0 1px var(--neon),0 0 26px rgba(168,255,62,.65),0 18px 40px rgba(20,50,35,.12);animation-play-state:paused}
+@keyframes serviceFloat{0%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-6px) rotate(.35deg)}50%{transform:translateY(-9px) rotate(0deg)}75%{transform:translateY(-4px) rotate(-.35deg)}100%{transform:translateY(0) rotate(0deg)}}
+@media(prefers-reduced-motion:reduce){.service-card{animation:none}}
+/* 4) 30s "better deals on Amazon via زُهي" popup, click anywhere on it to jump to services */
+.deals-promo{cursor:pointer}
+.deals-promo .install-promo-icon{color:#ff9900}
+/* 5) general responsiveness safety-net across all screen sizes */
+html,body{max-width:100%;overflow-x:hidden}
+*{min-width:0}
+img,svg{max-width:100%}
+.contact-info a,.contact-info span,.msg-body,.review-text{overflow-wrap:anywhere}
+@media(max-width:400px){.nav-wrap{flex-wrap:wrap}}
+@media(max-width:360px){.brand small{display:none}.nav-actions{gap:5px}}
+@media(max-width:760px){.footer-grid{gap:18px}}
