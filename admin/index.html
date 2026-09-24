@@ -87,9 +87,15 @@
     <label class="field-label" for="waveColor">لون خطوط الموجة النيون المتحركة<input id="waveColor" type="color" value="#a8ff3e"></label>
     <label class="field-label" for="waveOpacity">وضوح خطوط الموجة (١٠ = خفيفة جدًا، ١٠٠ = واضحة تمامًا)<input id="waveOpacity" type="range" min="10" max="100" step="1" value="66"></label>
     <label class="field-label" for="waveStyle">شكل خطوط الموجة<select id="waveStyle"><option value="wave">موجة ناعمة</option><option value="zigzag">موجة متعرجة</option><option value="dotted">خط منقط متحرك</option></select></label>
+    <div class="admin-images-preview" style="grid-column:1/-1;flex-direction:column;align-items:stretch;gap:6px">
+      <span class="field-label" style="padding:0">إظهار منتجات كل دولة في الموقع (لو عطّلت دولة، تختفي منتجاتها وتبويبها من الواجهة تلقائيًا)</span>
+      <label class="check"><input id="countryVisibleEgypt" type="checkbox" checked> 🇪🇬 إظهار منتجات مصر</label>
+      <label class="check"><input id="countryVisibleUae" type="checkbox" checked> 🇦🇪 إظهار منتجات الإمارات</label>
+      <label class="check"><input id="countryVisibleSaudi" type="checkbox" checked> 🇸🇦 إظهار منتجات السعودية</label>
+    </div>
     <div class="form-actions"><button class="btn primary">حفظ الإعدادات</button></div>
   </form>
   <div class="security-note">تعديلات لوحة الإدارة تُحفظ في Supabase وتظهر للزوار والتطبيق بعد تحديث البيانات. الدخول محمي عبر Supabase Auth وصلاحيات RLS. استخدم المفتاح العام فقط، ولا تضع service_role key في الموقع.</div>
 </div>
 
-</section></div><div id="toast-container"></div><script src="../js/admin.js?v=admin-product-v5"></script></body></html>
+</section></div><div id="toast-container"></div><script src="../js/admin.js?v=admin-product-v6"></script></body></html>
